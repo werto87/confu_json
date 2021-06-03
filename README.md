@@ -28,4 +28,5 @@ confu_json provides 2 functions:
   }  
   ```
   Exampls for defining types: "https://github.com/werto87/confu_json/blob/main/test/constant.hxx"
+  
   Exampls for usage: "https://github.com/werto87/confu_json/blob/main/test/combineToJsonAndToObject.cxx"
