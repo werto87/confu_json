@@ -6,7 +6,7 @@
   
   Use to_json(object from your type) to create a json with the data from your type.
   
-  Use to_object< your type >(object from your type) to create a json with the data from your type.
+  Use to_object< your type >(json) to create a json with the data from your type.
   
   
 ## Example:
