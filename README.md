@@ -30,3 +30,5 @@
   Exampls for defining types: "https://github.com/werto87/confu_json/blob/main/test/constant.hxx"
   
   Exampls for usage: "https://github.com/werto87/confu_json/blob/main/test/combineToJsonAndToObject.cxx"
+
+This project builds on boost::json, boost::mpl and boost::fusion
