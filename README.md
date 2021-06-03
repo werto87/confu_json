@@ -3,8 +3,8 @@
 
 ## How to:
   Define a boost fusion struct "https://www.boost.org/doc/libs/1_76_0/libs/fusion/doc/html/fusion/adapted/define_struct.html".
-  use to_json(object from your type) to create a json with the data from your type.
-  use to_object<your type>(object from your type) to create a json with the data from your type.
+  Use to_json(object from your type) to create a json with the data from your type.
+  Use to_object<your type>(object from your type) to create a json with the data from your type.
   
   
 ## Example:
