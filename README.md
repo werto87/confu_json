@@ -1,4 +1,5 @@
 # confu_json
+## Help for json <-> user defined type
 ## confu_json provides 2 functions:
 
   -to_object takes json and outputs user defined type
