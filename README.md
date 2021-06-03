@@ -3,13 +3,14 @@ confu_json provides 2 functions:
   -to_object takes json and outputs user defined type
   -to_json takes user defined type and outputs json
 
-How to:
+## How to:
   Define a boost fusion struct "https://www.boost.org/doc/libs/1_76_0/libs/fusion/doc/html/fusion/adapted/define_struct.html".
   use to_json(object from your type) to create a json with the data from your type.
   use to_object<your type>(object from your type) to create a json with the data from your type.
   
   
-Example:
+## Example:
+  ```c++
   #include "confu_json/to_json.hxx"
   #include "confu_json/to_object.hxx"
   #include <boost/fusion/adapted/struct/adapt_struct.hpp>
@@ -25,6 +26,6 @@ Example:
     auto nestedTest = to_object<shared_class::Nested>(to_json(nested));
     assert(nested.answer == nestedTest.answer);
   }  
-  
+  ```
   Exampls for defining types: "https://github.com/werto87/confu_json/blob/main/test/constant.hxx"
   Exampls for usage: "https://github.com/werto87/confu_json/blob/main/test/combineToJsonAndToObject.cxx"
