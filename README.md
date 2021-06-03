@@ -31,4 +31,6 @@
   
   Exampls for usage: "https://github.com/werto87/confu_json/blob/main/test/combineToJsonAndToObject.cxx"
 
-## This project builds on boost::json, boost::mpl and boost::fusion
+## This project builds on:
+Json handling -> boost::json
+Metaprogramming -> boost::mpl and boost::fusion
