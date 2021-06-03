@@ -1,10 +1,5 @@
 # confu_json
 ## Helps you with parsing  json to user defined type and vice versa.
-## confu_json provides 2 functions:
-
-  -to_object takes json and outputs user defined type
-  
-  -to_json takes user defined type and outputs json
 
 ## How to:
   Define a boost fusion struct "https://www.boost.org/doc/libs/1_76_0/libs/fusion/doc/html/fusion/adapted/define_struct.html".
