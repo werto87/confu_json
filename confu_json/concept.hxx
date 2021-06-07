@@ -7,22 +7,17 @@
 namespace confu_json
 {
 
-template <typename T> concept printable = requires(T t)
-{
-  {
-    std::cout << t
-  }
-  ->std::same_as<std::ostream &>;
-};
-template <typename T> concept IsOptional = requires(T a) { a.has_value (); };
+template <typename T> concept printable = requires(T t) { std::cout << t; };
 
-template <typename T> concept IsPair = requires(T a) { a.second; };
+template <typename T> concept IsOptional = requires(T t) { t.has_value (); };
 
-template <typename T> concept IsArray = requires(T a) { a.size (); };
+template <typename T> concept IsPair = requires(T t) { t.second; };
+
+template <typename T> concept IsArray = requires(T t) { t.size (); };
 
 template <typename T> using is_adapted_struct = std::is_same<typename boost::fusion::traits::tag_of<T>::type, boost::fusion::struct_tag>;
 
-template <typename T> concept IsFusionStruct = requires(T a) { T::self_type; };
+template <typename T> concept IsFusionStruct = requires(T t) { T::self_type; };
 
 inline boost::json::value
 read_json (std::stringstream &is, boost::json::error_code &ec)
