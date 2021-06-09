@@ -1,6 +1,7 @@
 #ifndef F5E56D46_F48D_4E89_B6F1_5D734D665E8D
 #define F5E56D46_F48D_4E89_B6F1_5D734D665E8D
 #include "confu_json/concept.hxx"
+#include "confu_json/util.hxx"
 #include <boost/fusion/adapted/struct/define_struct.hpp>
 #include <boost/fusion/include/algorithm.hpp>
 #include <boost/mpl/range_c.hpp>
@@ -53,7 +54,7 @@ handleOptional (T &t, U &_value, std::string const &name)
             }
           else
             {
-              std::cout << typeNameWithOutNamespace (optionalType{}) << ": not supported enum value: " << jsonDataForMember.as_string ().c_str () << std::endl;
+              std::cout << std::string{ type_name<optionalType> () } << ": not supported enum value: " << jsonDataForMember.as_string ().c_str () << std::endl;
             }
         }
     }
@@ -112,7 +113,7 @@ to_object (boost::json::value const &_value)
                         if (not element.is_null ())
                           {
                             auto temp = someTypeOtherType{};
-                            handleOptional (temp, element, typeNameWithOutNamespace (someTypeOtherType{}));
+                            handleOptional (temp, element, std::string{ type_name<someTypeOtherType> () });
                             member.push_back (temp);
                           }
                         else
@@ -180,7 +181,7 @@ to_object (boost::json::value const &_value)
                       {
                         if (not element.at (0).is_null ())
                           {
-                            handleOptional (result.first, element.at (0), typeNameWithOutNamespace (firstType{}));
+                            handleOptional (result.first, element.at (0), std::string{ type_name<firstType> () });
                           }
                       }
                     else
@@ -200,7 +201,7 @@ to_object (boost::json::value const &_value)
                           }
                         else
                           {
-                            result.first = to_object<firstType> (element.at (0).at (typeNameWithOutNamespace (firstType{})));
+                            result.first = to_object<firstType> (element.at (0).at (type_name<firstType> ()));
                           }
                       }
 
@@ -208,7 +209,7 @@ to_object (boost::json::value const &_value)
                       {
                         if (not element.at (1).is_null ())
                           {
-                            handleOptional (result.second, element.at (1), typeNameWithOutNamespace (secondType{}));
+                            handleOptional (result.second, element.at (1), std::string{ type_name<secondType> () });
                           }
                       }
                     else
@@ -228,7 +229,7 @@ to_object (boost::json::value const &_value)
                           }
                         else
                           {
-                            result.second = to_object<secondType> (element.at (1).at (typeNameWithOutNamespace (secondType{})));
+                            result.second = to_object<secondType> (element.at (1).at (type_name<secondType> ()));
                           }
                       }
                     member.push_back (result);
@@ -240,7 +241,7 @@ to_object (boost::json::value const &_value)
                   {
                     for (value const &element : jsonDataForMember.as_array ())
                       {
-                        member.push_back (to_object<someTypeOtherType> (element.as_object ().at (typeNameWithOutNamespace (someTypeOtherType{}))));
+                        member.push_back (to_object<someTypeOtherType> (element.as_object ().at (type_name<someTypeOtherType> ())));
                       }
                   }
                 else if constexpr (std::is_enum_v<someTypeOtherType>)
@@ -275,7 +276,7 @@ to_object (boost::json::value const &_value)
               {
                 if (not jsonDataForMember.at (0).is_null ())
                   {
-                    handleOptional (member.first, jsonDataForMember.at (0), typeNameWithOutNamespace (firstType{}));
+                    handleOptional (member.first, jsonDataForMember.at (0), std::string{ type_name<firstType> () });
                   }
               }
             else if constexpr (std::is_enum_v<firstType>)
@@ -293,14 +294,14 @@ to_object (boost::json::value const &_value)
               }
             else
               {
-                member.first = to_object<firstType> (jsonDataForMember.at (0).at (typeNameWithOutNamespace (firstType{})));
+                member.first = to_object<firstType> (jsonDataForMember.at (0).at (type_name<firstType> ()));
               }
 
             if constexpr (IsOptional<secondType>)
               {
                 if (not jsonDataForMember.at (1).is_null ())
                   {
-                    handleOptional (member.second, jsonDataForMember.at (1), typeNameWithOutNamespace (secondType{}));
+                    handleOptional (member.second, jsonDataForMember.at (1), std::string{ type_name<secondType> () });
                   }
               }
             else if constexpr (std::is_enum_v<secondType>)
@@ -318,7 +319,7 @@ to_object (boost::json::value const &_value)
               }
             else
               {
-                member.second = to_object<secondType> (jsonDataForMember.at (1).at (typeNameWithOutNamespace (secondType{})));
+                member.second = to_object<secondType> (jsonDataForMember.at (1).at (type_name<secondType> ()));
               }
           }
         else if constexpr (std::is_enum_v<currentType>)
@@ -331,7 +332,7 @@ to_object (boost::json::value const &_value)
               }
             else
               {
-                std::cout << typeNameWithOutNamespace (currentType{}) << ": not supported enum value: " << jsonDataForMember.as_string ().c_str () << std::endl;
+                std::cout << type_name<currentType> () << ": not supported enum value: " << jsonDataForMember.as_string ().c_str () << std::endl;
               }
           }
         else
