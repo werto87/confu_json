@@ -2,6 +2,7 @@
 #include "test/constant.hxx"
 #include <catch2/catch.hpp>
 #include <optional>
+#include <utility>
 using namespace boost::json;
 using namespace confu_json;
 TEST_CASE ("Nested to_json", "[to_json]")
@@ -172,4 +173,12 @@ TEST_CASE ("WithEnumPairOptionalVector", "[to_json]")
   withMissingvalue.second = std::nullopt;
   withEnumPairOptionalVector.withEnumPairOptionalVector.push_back (withMissingvalue);
   std::cout << to_json (withEnumPairOptionalVector) << std::endl;
+}
+
+TEST_CASE ("VectorWithPairOfInt", "[to_json]")
+{
+  auto vectorWithPairOfInt = shared_class::VectorWithPairOfInt{};
+  std::cout << to_json (vectorWithPairOfInt) << std::endl;
+  vectorWithPairOfInt.vectorWithPairOfInt.push_back (std::make_pair (1, 2));
+  std::cout << to_json (vectorWithPairOfInt) << std::endl;
 }

@@ -7,18 +7,8 @@
 #include <iostream>
 #include <string_view>
 
-// template <typename T>
-// std::string
-// // only use this if your type is a simple user defined type with not template class something like namespace::MyType and you want to get MyType
-// // does not work with templated types or something like std::string which is std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > and the result will be allocator<char> >
-// typeNameWithOutNamespace (T const &)
-// {
-//   auto fullName = std::vector<std::string>{};
-//   auto typeWithNamespace = boost::typeindex::type_id<T> ().pretty_name ();
-//   boost::algorithm::split (fullName, typeWithNamespace, boost::is_any_of ("::"));
-//   boost::erase_all (fullName.back (), ">");
-//   return fullName.back ();
-// }
+namespace confu_json
+{
 
 template <typename T>
 auto
@@ -54,5 +44,5 @@ read_json (std::stringstream &is, boost::json::error_code &ec)
   if (ec) return nullptr;
   return p.release ();
 }
-
+}
 #endif /* EFBB6F2B_7B2E_4BD2_AF22_95E2E7BEDBD6 */

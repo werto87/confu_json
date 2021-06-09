@@ -148,7 +148,6 @@ TEST_CASE ("NestedVectorOptional", "[test]")
   // TODO [pair] think about if it makes sense to have something like
   // [{"Nested":{"answer":42}},{"Nested":{"answer":42}}]
   // maybe we can get rid of the name
-  // TODO add new header for convinience
 
   array arr;
   arr.emplace_back (42);

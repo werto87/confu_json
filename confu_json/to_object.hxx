@@ -268,7 +268,6 @@ to_object (boost::json::value const &_value)
           }
         else if constexpr (IsPair<currentType>)
           {
-            // TODO how does int work???
             using firstType = std::remove_reference_t<decltype (member.first)>;
             using secondType = std::remove_reference_t<decltype (member.second)>;
 

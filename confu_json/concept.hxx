@@ -2,7 +2,6 @@
 #define A0BAA2CA_6E62_4337_B0BE_F4AFE5469841
 #include <boost/algorithm/string.hpp>
 #include <boost/fusion/adapted/struct/adapt_struct.hpp>
-#include <boost/json.hpp>
 #include <iostream>
 #include <string_view>
 namespace confu_json

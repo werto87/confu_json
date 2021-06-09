@@ -61,6 +61,16 @@ struct WithEnumPairOptionalVector
 
 BOOST_FUSION_ADAPT_STRUCT (shared_class::WithEnumPairOptionalVector, withEnumPairOptionalVector)
 
+namespace shared_class
+{
+struct VectorWithPairOfInt
+{
+  std::vector<std::pair<int, int>> vectorWithPairOfInt{};
+};
+}
+
+BOOST_FUSION_ADAPT_STRUCT (shared_class::VectorWithPairOfInt, vectorWithPairOfInt)
+
 BOOST_FUSION_DEFINE_STRUCT ((shared_class), Nested, (long, answer))
 BOOST_FUSION_DEFINE_STRUCT ((shared_class), Student, (long, answer) (bool, happy) (std::string, name) (boost::optional<int>, nothingInt) (boost::optional<bool>, nothingBool) (boost::optional<std::string>, nothingString) (shared_class::Nested, nested) (boost::optional<shared_class::Nested>, nestedOptional))
 BOOST_FUSION_DEFINE_STRUCT ((shared_class), NestedVector, (std::vector<int>, intVector) (std::vector<shared_class::Nested>, nestedVector))
