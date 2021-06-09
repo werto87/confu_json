@@ -1,6 +1,7 @@
 #include "confu_json/to_json.hxx"
 #include "test/constant.hxx"
 #include <catch2/catch.hpp>
+#include <optional>
 using namespace boost::json;
 using namespace confu_json;
 TEST_CASE ("Nested to_json", "[to_json]")
@@ -97,4 +98,78 @@ TEST_CASE ("NestedPairOptionalVector to_json", "[to_json]")
   nestedPairOptionalVector.nestedPairOptionalVector.push_back (std::pair<shared_class::Nested, boost::optional<shared_class::Nested>>{ shared_class::Nested{ 42 }, shared_class::Nested{ 42 } });
   nestedPairOptionalVector.nestedPairOptionalVector.push_back (std::pair<shared_class::Nested, boost::optional<shared_class::Nested>>{ shared_class::Nested{ 32 }, boost::optional<shared_class::Nested>{} });
   std::cout << to_json (nestedPairOptionalVector) << std::endl;
+}
+
+TEST_CASE ("Enum", "[to_json]")
+{
+  auto withEnum = shared_class::WithEnum{};
+  std::cout << to_json (withEnum) << std::endl;
+}
+
+TEST_CASE ("EnumOptional", "[to_json]")
+{
+  auto withEnumOptional = shared_class::WithEnumOptional{};
+  std::cout << to_json (withEnumOptional) << std::endl;
+  withEnumOptional = shared_class::WithEnumOptional{};
+  withEnumOptional.playerRoleOptional = shared_class::PlayerRole::defend;
+  std::cout << to_json (withEnumOptional) << std::endl;
+}
+
+TEST_CASE ("WithEnumPair", "[to_json]")
+{
+  auto withEnumPair = shared_class::WithEnumPair{};
+  withEnumPair.withEnumPair.second = shared_class::PlayerRole::defend;
+  std::cout << to_json (withEnumPair) << std::endl;
+}
+
+TEST_CASE ("WithEnumPairOptional", "[to_json]")
+{
+  auto withEnumPairOptional = shared_class::WithEnumPairOptional{};
+  std::cout << to_json (withEnumPairOptional) << std::endl;
+  withEnumPairOptional = shared_class::WithEnumPairOptional{};
+  withEnumPairOptional.withEnumPairOptional.second = shared_class::PlayerRole::defend;
+  std::cout << to_json (withEnumPairOptional) << std::endl;
+}
+
+TEST_CASE ("WithEnumVector", "[to_json]")
+{
+  auto withEnumVector = shared_class::WithEnumVector{};
+  std::cout << to_json (withEnumVector) << std::endl;
+  withEnumVector = shared_class::WithEnumVector{};
+  withEnumVector.withEnumVector.push_back (shared_class::PlayerRole::defend);
+  withEnumVector.withEnumVector.push_back (shared_class::PlayerRole::attack);
+  std::cout << to_json (withEnumVector) << std::endl;
+}
+
+TEST_CASE ("WithEnumVectorOptional", "[to_json]")
+{
+  auto withEnumVectorOptional = shared_class::WithEnumVectorOptional{};
+  std::cout << to_json (withEnumVectorOptional) << std::endl;
+  withEnumVectorOptional = shared_class::WithEnumVectorOptional{};
+  withEnumVectorOptional.withEnumVectorOptional.push_back (shared_class::PlayerRole::defend);
+  withEnumVectorOptional.withEnumVectorOptional.push_back (std::nullopt);
+  std::cout << to_json (withEnumVectorOptional) << std::endl;
+}
+
+TEST_CASE ("WithEnumPairVector", "[to_json]")
+{
+  auto withEnumPairVector = shared_class::WithEnumPairVector{};
+  std::cout << to_json (withEnumPairVector) << std::endl;
+  withEnumPairVector = shared_class::WithEnumPairVector{};
+  withEnumPairVector.withEnumPairVector = std::vector<std::pair<shared_class::PlayerRole, shared_class::PlayerRole>> (2);
+  std::cout << to_json (withEnumPairVector) << std::endl;
+}
+
+TEST_CASE ("WithEnumPairOptionalVector", "[to_json]")
+{
+  auto withEnumPairOptionalVector = shared_class::WithEnumPairOptionalVector{};
+  std::cout << to_json (withEnumPairOptionalVector) << std::endl;
+  withEnumPairOptionalVector = shared_class::WithEnumPairOptionalVector{};
+  auto withValue = std::pair<shared_class::PlayerRole, std::optional<shared_class::PlayerRole>>{};
+  withValue.second = shared_class::PlayerRole::defend;
+  withEnumPairOptionalVector.withEnumPairOptionalVector.push_back (withValue);
+  auto withMissingvalue = std::pair<shared_class::PlayerRole, std::optional<shared_class::PlayerRole>>{};
+  withMissingvalue.second = std::nullopt;
+  withEnumPairOptionalVector.withEnumPairOptionalVector.push_back (withMissingvalue);
+  std::cout << to_json (withEnumPairOptionalVector) << std::endl;
 }

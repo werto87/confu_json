@@ -148,6 +148,8 @@ TEST_CASE ("NestedVectorOptional", "[test]")
   // TODO think about if it makes sense to have something like
   // [{"Nested":{"answer":42}},{"Nested":{"answer":42}}]
   // maybe we can get rid of the name
+  // TODO test all durak types they make problems
+  // TODO add enum support
   array arr;
   arr.emplace_back (42);
   arr.emplace_back (43);

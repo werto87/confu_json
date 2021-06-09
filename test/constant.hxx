@@ -3,6 +3,64 @@
 #include <boost/fusion/adapted/struct/adapt_struct.hpp>
 #include <boost/optional/optional_io.hpp>
 
+namespace shared_class
+{
+
+enum struct PlayerRole
+{
+  attack,
+  defend,
+  assistAttacker,
+  waiting
+};
+}
+
+BOOST_FUSION_DEFINE_STRUCT ((shared_class), WithEnum, (shared_class::PlayerRole, playerRole))
+BOOST_FUSION_DEFINE_STRUCT ((shared_class), WithEnumOptional, (std::optional<shared_class::PlayerRole>, playerRoleOptional))
+
+namespace shared_class
+{
+struct WithEnumPair
+{
+  std::pair<shared_class::PlayerRole, shared_class::PlayerRole> withEnumPair{};
+};
+}
+
+BOOST_FUSION_ADAPT_STRUCT (shared_class::WithEnumPair, withEnumPair)
+
+namespace shared_class
+{
+struct WithEnumPairOptional
+{
+  std::pair<shared_class::PlayerRole, std::optional<shared_class::PlayerRole>> withEnumPairOptional{};
+};
+}
+
+BOOST_FUSION_ADAPT_STRUCT (shared_class::WithEnumPairOptional, withEnumPairOptional)
+
+BOOST_FUSION_DEFINE_STRUCT ((shared_class), WithEnumVector, (std::vector<shared_class::PlayerRole>, withEnumVector))
+BOOST_FUSION_DEFINE_STRUCT ((shared_class), WithEnumVectorOptional, (std::vector<std::optional<shared_class::PlayerRole>>, withEnumVectorOptional))
+
+namespace shared_class
+{
+struct WithEnumPairVector
+{
+  std::vector<std::pair<shared_class::PlayerRole, shared_class::PlayerRole>> withEnumPairVector{};
+};
+}
+
+BOOST_FUSION_ADAPT_STRUCT (shared_class::WithEnumPairVector, withEnumPairVector)
+
+namespace shared_class
+{
+struct WithEnumPairOptionalVector
+{
+  std::vector<std::pair<shared_class::PlayerRole, std::optional<shared_class::PlayerRole>>> withEnumPairOptionalVector{};
+};
+}
+
+BOOST_FUSION_ADAPT_STRUCT (shared_class::WithEnumPairOptionalVector, withEnumPairOptionalVector)
+
 BOOST_FUSION_DEFINE_STRUCT ((shared_class), Nested, (long, answer))
 BOOST_FUSION_DEFINE_STRUCT ((shared_class), Student, (long, answer) (bool, happy) (std::string, name) (boost::optional<int>, nothingInt) (boost::optional<bool>, nothingBool) (boost::optional<std::string>, nothingString) (shared_class::Nested, nested) (boost::optional<shared_class::Nested>, nestedOptional))
 BOOST_FUSION_DEFINE_STRUCT ((shared_class), NestedVector, (std::vector<int>, intVector) (std::vector<shared_class::Nested>, nestedVector))

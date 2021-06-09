@@ -1,6 +1,7 @@
 [requires]
 catch2/2.13.1
 boost/1.76.0
+magic_enum/0.7.2
 [generators]
 cmake
 [options]

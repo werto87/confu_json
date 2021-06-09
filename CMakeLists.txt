@@ -64,6 +64,7 @@ target_link_libraries(${TARGET_NAME} INTERFACE
   ${PROJECT_WARNINGS}
   ${PROJECT_OPTIONS}
     CONAN_PKG::boost
+    CONAN_PKG::magic_enum
 )
 
   

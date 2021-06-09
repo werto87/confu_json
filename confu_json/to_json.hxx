@@ -6,6 +6,7 @@
 #include <boost/fusion/include/define_struct.hpp>
 #include <boost/fusion/include/std_pair.hpp>
 #include <boost/mpl/range_c.hpp>
+#include <magic_enum.hpp>
 
 namespace confu_json
 {
@@ -34,7 +35,14 @@ handleOptional (boost::json::object &result, T const &t, std::string const &memb
     {
       if (t.has_value ())
         {
-          result[memberName] = t.value ();
+          if constexpr (std::is_enum_v<optionalType>)
+            {
+              result[memberName] = std::string{ magic_enum::enum_name (t.value ()) };
+            }
+          else
+            {
+              result[memberName] = t.value ();
+            }
           return true;
         }
       else
@@ -55,7 +63,7 @@ handlePair (boost::json::object &result, T const &member, std::string const &mem
   array pairArray;
   if constexpr (IsOptional<pairTypeFirst>)
     {
-      if constexpr (boost::fusion::traits::is_sequence<pairTypeFirst>::value)
+      if constexpr (boost::fusion::traits::is_sequence<pairTypeFirst>::value) // looks fishy how can the type be optional and fusion sequence
         {
           object wrapper;
           if (handleOptional (wrapper, member.first, typeNameWithOutNamespace (pairTypeFirst{})))
@@ -90,12 +98,21 @@ handlePair (boost::json::object &result, T const &member, std::string const &mem
         }
       else
         {
-          pairArray.emplace_back (member.first);
+          if constexpr (std::is_enum_v<pairTypeFirst>)
+            {
+              object wrapper;
+              wrapper[typeNameWithOutNamespace (pairTypeSecond{})] = std::string{ magic_enum::enum_name (member.first) };
+              pairArray.emplace_back (wrapper);
+            }
+          else
+            {
+              pairArray.emplace_back (member.first);
+            }
         }
     }
   if constexpr (IsOptional<pairTypeSecond>)
     {
-      if constexpr (boost::fusion::traits::is_sequence<pairTypeSecond>::value)
+      if constexpr (boost::fusion::traits::is_sequence<pairTypeSecond>::value) // looks fishy how can the type be optional and fusion sequence
         {
           object wrapper;
           if (handleOptional (wrapper, member.second, typeNameWithOutNamespace (pairTypeSecond{})))
@@ -130,7 +147,16 @@ handlePair (boost::json::object &result, T const &member, std::string const &mem
         }
       else
         {
-          pairArray.emplace_back (member.second);
+          if constexpr (std::is_enum_v<pairTypeSecond>)
+            {
+              object wrapper;
+              wrapper[typeNameWithOutNamespace (pairTypeSecond{})] = std::string{ magic_enum::enum_name (member.second) };
+              pairArray.emplace_back (wrapper);
+            }
+          else
+            {
+              pairArray.emplace_back (member.second);
+            }
         }
     }
   result[memberName] = pairArray;
@@ -148,11 +174,11 @@ to_json (T const &t)
     auto memberName = boost::fusion::extension::struct_member_name<T, index>::call ();
     if constexpr (boost::fusion::traits::is_sequence<currentType>::value)
       {
-        if constexpr (IsOptional<currentType>)
+        if constexpr (IsOptional<currentType>) // optional and fusion struct sounds fishy
           {
             handleOptional (obj, member, memberName);
           }
-        else if constexpr (IsPair<currentType>)
+        else if constexpr (IsPair<currentType>) // pair and fusion struct sounds fishy
           {
             handlePair (obj, member, memberName);
           }
@@ -164,6 +190,10 @@ to_json (T const &t)
     else if constexpr (IsOptional<currentType>)
       {
         handleOptional (obj, member, memberName);
+      }
+    else if constexpr (std::is_enum_v<currentType>)
+      {
+        obj[memberName] = std::string{ magic_enum::enum_name (member) };
       }
     else if constexpr (IsArray<currentType>)
       {
@@ -190,7 +220,15 @@ to_json (T const &t)
                   {
                     if (element.has_value ())
                       {
-                        result.emplace_back (element.value ());
+                        if constexpr (std::is_enum_v<optionalType>)
+                          {
+                            tmp[typeNameWithOutNamespace (optionalType{})] = std::string{ magic_enum::enum_name (element.value ()) };
+                            result.emplace_back (tmp);
+                          }
+                        else
+                          {
+                            result.emplace_back (element.value ());
+                          }
                       }
                     else
                       {
@@ -210,7 +248,15 @@ to_json (T const &t)
               }
             else
               {
-                result.emplace_back (element);
+                if constexpr (std::is_enum_v<elementType>)
+                  {
+                    tmp[typeNameWithOutNamespace (elementType{})] = std::string{ magic_enum::enum_name (element) };
+                    result.push_back (tmp);
+                  }
+                else
+                  {
+                    result.emplace_back (element);
+                  }
               }
           }
         obj[memberName] = result;
