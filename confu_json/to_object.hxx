@@ -4,7 +4,7 @@
 #include <boost/fusion/adapted/struct/define_struct.hpp>
 #include <boost/fusion/include/algorithm.hpp>
 #include <boost/mpl/range_c.hpp>
-
+#include <magic_enum.hpp>
 namespace confu_json
 {
 
@@ -40,6 +40,22 @@ handleOptional (T &t, U &_value, std::string const &name)
   else if constexpr (printable<optionalType>)
     {
       if (jsonDataForMember.kind () == kind::string) t = jsonDataForMember.as_string ().c_str ();
+    }
+  else if constexpr (std::is_enum_v<optionalType>)
+    {
+      if (jsonDataForMember.kind () == kind::string)
+        {
+          auto result = std::string{ jsonDataForMember.as_string ().c_str () };
+          auto enumOptional = magic_enum::enum_cast<optionalType> (result);
+          if (enumOptional)
+            {
+              t = enumOptional.value ();
+            }
+          else
+            {
+              std::cout << typeNameWithOutNamespace (optionalType{}) << ": not supported enum value: " << jsonDataForMember.as_string ().c_str () << std::endl;
+            }
+        }
     }
   else if constexpr (boost::fusion::traits::is_sequence<optionalType>::value)
     {
@@ -131,6 +147,20 @@ to_object (boost::json::value const &_value)
                                     member.push_back (std::string{});
                                   }
                               }
+                            else if constexpr (std::is_enum_v<optionalType>)
+                              {
+
+                                auto result = std::string{ type_name<optionalType> () };
+                                auto enumOptional = magic_enum::enum_cast<optionalType> (element.as_object ().at (result).as_string ().c_str ());
+                                if (enumOptional)
+                                  {
+                                    member.push_back (enumOptional.value ());
+                                  }
+                                else
+                                  {
+                                    std::cout << type_name<optionalType> () << ": not supported enum value: " << jsonDataForMember.as_string ().c_str () << std::endl;
+                                  }
+                              }
                           }
                         else
                           {
@@ -155,7 +185,23 @@ to_object (boost::json::value const &_value)
                       }
                     else
                       {
-                        result.first = to_object<firstType> (element.at (0).at (typeNameWithOutNamespace (firstType{})));
+                        if constexpr (std::is_enum_v<firstType>)
+                          {
+                            auto typeName = std::string{ type_name<firstType> () };
+                            auto enumOptional = magic_enum::enum_cast<firstType> (element.at (0).at (typeName).as_string ().c_str ());
+                            if (enumOptional)
+                              {
+                                result.first = enumOptional.value ();
+                              }
+                            else
+                              {
+                                std::cout << type_name<firstType> () << ": not supported enum value: " << element.as_string ().c_str () << std::endl;
+                              }
+                          }
+                        else
+                          {
+                            result.first = to_object<firstType> (element.at (0).at (typeNameWithOutNamespace (firstType{})));
+                          }
                       }
 
                     if constexpr (IsOptional<secondType>)
@@ -167,7 +213,23 @@ to_object (boost::json::value const &_value)
                       }
                     else
                       {
-                        result.second = to_object<secondType> (element.at (1).at (typeNameWithOutNamespace (secondType{})));
+                        if constexpr (std::is_enum_v<secondType>)
+                          {
+                            auto typeName = std::string{ type_name<secondType> () };
+                            auto enumOptional = magic_enum::enum_cast<secondType> (element.at (1).at (typeName).as_string ().c_str ());
+                            if (enumOptional)
+                              {
+                                result.second = enumOptional.value ();
+                              }
+                            else
+                              {
+                                std::cout << type_name<secondType> () << ": not supported enum value: " << element.as_string ().c_str () << std::endl;
+                              }
+                          }
+                        else
+                          {
+                            result.second = to_object<secondType> (element.at (1).at (typeNameWithOutNamespace (secondType{})));
+                          }
                       }
                     member.push_back (result);
                   }
@@ -178,9 +240,23 @@ to_object (boost::json::value const &_value)
                   {
                     for (value const &element : jsonDataForMember.as_array ())
                       {
-                        {
-                          member.push_back (to_object<someTypeOtherType> (element.as_object ().at (typeNameWithOutNamespace (someTypeOtherType{}))));
-                        }
+                        member.push_back (to_object<someTypeOtherType> (element.as_object ().at (typeNameWithOutNamespace (someTypeOtherType{}))));
+                      }
+                  }
+                else if constexpr (std::is_enum_v<someTypeOtherType>)
+                  {
+                    for (value const &element : jsonDataForMember.as_array ())
+                      {
+                        auto result = std::string{ type_name<someTypeOtherType> () };
+                        auto enumOptional = magic_enum::enum_cast<someTypeOtherType> (element.as_object ().at (result).as_string ().c_str ());
+                        if (enumOptional)
+                          {
+                            member.push_back (enumOptional.value ());
+                          }
+                        else
+                          {
+                            std::cout << type_name<someTypeOtherType> () << ": not supported enum value: " << jsonDataForMember.as_string ().c_str () << std::endl;
+                          }
                       }
                   }
                 else
@@ -191,6 +267,7 @@ to_object (boost::json::value const &_value)
           }
         else if constexpr (IsPair<currentType>)
           {
+            // TODO how does int work???
             using firstType = std::remove_reference_t<decltype (member.first)>;
             using secondType = std::remove_reference_t<decltype (member.second)>;
 
@@ -199,6 +276,19 @@ to_object (boost::json::value const &_value)
                 if (not jsonDataForMember.at (0).is_null ())
                   {
                     handleOptional (member.first, jsonDataForMember.at (0), typeNameWithOutNamespace (firstType{}));
+                  }
+              }
+            else if constexpr (std::is_enum_v<firstType>)
+              {
+                auto result = std::string{ type_name<firstType> () };
+                auto enumOptional = magic_enum::enum_cast<firstType> (jsonDataForMember.at (0).at (result).as_string ().c_str ());
+                if (enumOptional)
+                  {
+                    member.first = enumOptional.value ();
+                  }
+                else
+                  {
+                    std::cout << type_name<firstType> () << ": not supported enum value: " << jsonDataForMember.as_string ().c_str () << std::endl;
                   }
               }
             else
@@ -213,9 +303,35 @@ to_object (boost::json::value const &_value)
                     handleOptional (member.second, jsonDataForMember.at (1), typeNameWithOutNamespace (secondType{}));
                   }
               }
+            else if constexpr (std::is_enum_v<secondType>)
+              {
+                auto result = std::string{ type_name<secondType> () };
+                auto enumOptional = magic_enum::enum_cast<secondType> (jsonDataForMember.at (1).at (result).as_string ().c_str ());
+                if (enumOptional)
+                  {
+                    member.second = enumOptional.value ();
+                  }
+                else
+                  {
+                    std::cout << type_name<secondType> () << ": not supported enum value: " << jsonDataForMember.as_string ().c_str () << std::endl;
+                  }
+              }
             else
               {
                 member.second = to_object<secondType> (jsonDataForMember.at (1).at (typeNameWithOutNamespace (secondType{})));
+              }
+          }
+        else if constexpr (std::is_enum_v<currentType>)
+          {
+            auto result = std::string{ jsonDataForMember.as_string ().c_str () };
+            auto enumOptional = magic_enum::enum_cast<currentType> (result);
+            if (enumOptional)
+              {
+                member = enumOptional.value ();
+              }
+            else
+              {
+                std::cout << typeNameWithOutNamespace (currentType{}) << ": not supported enum value: " << jsonDataForMember.as_string ().c_str () << std::endl;
               }
           }
         else

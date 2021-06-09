@@ -223,6 +223,7 @@ to_json (T const &t)
                         if constexpr (std::is_enum_v<optionalType>)
                           {
                             tmp[typeNameWithOutNamespace (optionalType{})] = std::string{ magic_enum::enum_name (element.value ()) };
+                            std::cout << tmp << std::endl;
                             result.emplace_back (tmp);
                           }
                         else

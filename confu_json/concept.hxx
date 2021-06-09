@@ -4,6 +4,7 @@
 #include <boost/fusion/adapted/struct/adapt_struct.hpp>
 #include <boost/json.hpp>
 #include <iostream>
+#include <string_view>
 namespace confu_json
 {
 
@@ -44,6 +45,26 @@ typeNameWithOutNamespace (T const &)
   auto typeWithNamespace = boost::typeindex::type_id<T> ().pretty_name ();
   boost::algorithm::split (fullName, typeWithNamespace, boost::is_any_of ("::"));
   boost::erase_all (fullName.back (), ">");
+  return fullName.back ();
+}
+
+template <typename T>
+auto
+type_name ()
+{
+#ifdef _MSC_VER
+  name = __FUNCSIG__;
+  auto fullName = std::vector<std::string>{};
+  boost::algorithm::split (fullName, name, boost::is_any_of ("::"));
+  boost::erase_all (fullName.back (), ">(void)");
+#else
+  std::string_view name = __PRETTY_FUNCTION__;
+  auto fullName = std::vector<std::string>{};
+  boost::algorithm::split (fullName, name, boost::is_any_of ("::"));
+  boost::erase_all (fullName.back (), "]");
+  boost::erase_all (fullName.back (), ">");
+#endif
+
   return fullName.back ();
 }
 }

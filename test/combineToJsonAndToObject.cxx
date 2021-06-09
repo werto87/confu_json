@@ -144,3 +144,112 @@ TEST_CASE ("NestedPairOptionalVector combination", "[combination]")
   REQUIRE (nestedPairOptionalVector.nestedPairOptionalVector.at (1).first.answer == nestedPairOptionalVectorTest.nestedPairOptionalVector.at (1).first.answer);
   REQUIRE (nestedPairOptionalVector.nestedPairOptionalVector.at (1).second.has_value () == nestedPairOptionalVectorTest.nestedPairOptionalVector.at (1).second.has_value ());
 }
+
+TEST_CASE ("Enum combination", "[combination]")
+{
+  auto withEnum = shared_class::WithEnum{};
+  auto withEnumTest = to_object<shared_class::WithEnum> (to_json (withEnum));
+  REQUIRE (withEnum.playerRole == withEnumTest.playerRole);
+}
+
+TEST_CASE ("EnumOptional combination", "[combination]")
+{
+  auto withEnumOptional = shared_class::WithEnumOptional{};
+  auto withEnumOptionalTest = to_object<shared_class::WithEnumOptional> (to_json (withEnumOptional));
+  REQUIRE (withEnumOptional.playerRoleOptional == withEnumOptionalTest.playerRoleOptional);
+  REQUIRE_FALSE (withEnumOptionalTest.playerRoleOptional.has_value ());
+}
+
+TEST_CASE ("EnumOptional value combination", "[combination]")
+{
+  auto withEnumOptional = shared_class::WithEnumOptional{};
+  withEnumOptional.playerRoleOptional = shared_class::PlayerRole::defend;
+  auto withEnumOptionalTest = to_object<shared_class::WithEnumOptional> (to_json (withEnumOptional));
+  REQUIRE (withEnumOptional.playerRoleOptional.value () == shared_class::PlayerRole::defend);
+  REQUIRE (withEnumOptionalTest.playerRoleOptional.has_value ());
+  REQUIRE (withEnumOptionalTest.playerRoleOptional.value () == shared_class::PlayerRole::defend);
+}
+TEST_CASE ("WithEnumPair combination", "[combination]")
+{
+  auto withEnumPair = shared_class::WithEnumPair{};
+  withEnumPair.withEnumPair.first = shared_class::PlayerRole::waiting;
+  withEnumPair.withEnumPair.second = shared_class::PlayerRole::defend;
+  auto withEnumPairTest = to_object<shared_class::WithEnumPair> (to_json (withEnumPair));
+  REQUIRE (withEnumPair.withEnumPair.first == withEnumPairTest.withEnumPair.first);
+  REQUIRE (withEnumPair.withEnumPair.second == withEnumPairTest.withEnumPair.second);
+}
+
+TEST_CASE ("WithEnumPairOptional combination", "[combination]")
+{
+  auto withEnumPairOptional = shared_class::WithEnumPairOptional{};
+  withEnumPairOptional.withEnumPairOptional.first = shared_class::PlayerRole::waiting;
+  withEnumPairOptional.withEnumPairOptional.second = shared_class::PlayerRole::defend;
+  auto withEnumPairOptionalTest = to_object<shared_class::WithEnumPairOptional> (to_json (withEnumPairOptional));
+  REQUIRE (withEnumPairOptional.withEnumPairOptional.first == withEnumPairOptionalTest.withEnumPairOptional.first);
+  REQUIRE (withEnumPairOptionalTest.withEnumPairOptional.second.has_value ());
+  REQUIRE (withEnumPairOptional.withEnumPairOptional.second == withEnumPairOptionalTest.withEnumPairOptional.second);
+}
+
+TEST_CASE ("WithEnumPairOptional with value combination", "[combination]")
+{
+  auto withEnumPairOptional = shared_class::WithEnumPairOptional{};
+  withEnumPairOptional.withEnumPairOptional.first = shared_class::PlayerRole::waiting;
+  withEnumPairOptional.withEnumPairOptional.second = std::nullopt;
+  auto withEnumPairOptionalTest = to_object<shared_class::WithEnumPairOptional> (to_json (withEnumPairOptional));
+  REQUIRE (withEnumPairOptional.withEnumPairOptional.first == withEnumPairOptionalTest.withEnumPairOptional.first);
+  REQUIRE_FALSE (withEnumPairOptionalTest.withEnumPairOptional.second.has_value ());
+}
+
+TEST_CASE ("WithEnumVector combination", "[combination]")
+{
+  auto withEnumVector = shared_class::WithEnumVector{};
+  auto withEnumVectorTest = to_object<shared_class::WithEnumVector> (to_json (withEnumVector));
+  REQUIRE (withEnumVectorTest.withEnumVector.empty ());
+  withEnumVector = shared_class::WithEnumVector{};
+  withEnumVector.withEnumVector = std::vector<shared_class::PlayerRole> (1);
+  withEnumVectorTest = to_object<shared_class::WithEnumVector> (to_json (withEnumVector));
+  REQUIRE_FALSE (withEnumVectorTest.withEnumVector.empty ());
+}
+
+TEST_CASE ("WithEnumVectorOptional combination", "[combination]")
+{
+  auto withEnumVectorOptional = shared_class::WithEnumVectorOptional{};
+  auto withEnumVectorOptionalTest = to_object<shared_class::WithEnumVectorOptional> (to_json (withEnumVectorOptional));
+  REQUIRE (withEnumVectorOptionalTest.withEnumVectorOptional.empty ());
+  withEnumVectorOptional = shared_class::WithEnumVectorOptional{};
+  withEnumVectorOptional.withEnumVectorOptional.push_back (shared_class::PlayerRole::defend);
+  withEnumVectorOptional.withEnumVectorOptional.push_back (std::nullopt);
+  withEnumVectorOptionalTest = to_object<shared_class::WithEnumVectorOptional> (to_json (withEnumVectorOptional));
+  REQUIRE_FALSE (withEnumVectorOptionalTest.withEnumVectorOptional.empty ());
+  REQUIRE (withEnumVectorOptionalTest.withEnumVectorOptional.at (0).has_value ());
+  REQUIRE_FALSE (withEnumVectorOptionalTest.withEnumVectorOptional.at (1).has_value ());
+}
+
+TEST_CASE ("WithEnumPairVector combination", "[combination]")
+{
+  auto withEnumPairVector = shared_class::WithEnumPairVector{};
+  auto withEnumPairVectorTest = to_object<shared_class::WithEnumPairVector> (to_json (withEnumPairVector));
+  REQUIRE (withEnumPairVectorTest.withEnumPairVector.empty ());
+  withEnumPairVector = shared_class::WithEnumPairVector{};
+  withEnumPairVector.withEnumPairVector.push_back (std::pair<shared_class::PlayerRole, shared_class::PlayerRole>{ shared_class::PlayerRole::waiting, shared_class::PlayerRole::assistAttacker });
+  withEnumPairVector.withEnumPairVector.push_back (std::pair<shared_class::PlayerRole, shared_class::PlayerRole>{});
+  withEnumPairVectorTest = to_object<shared_class::WithEnumPairVector> (to_json (withEnumPairVector));
+  REQUIRE (withEnumPairVectorTest.withEnumPairVector.size () == 2);
+  REQUIRE (withEnumPairVectorTest.withEnumPairVector.front ().first == shared_class::PlayerRole::waiting);
+  REQUIRE (withEnumPairVectorTest.withEnumPairVector.front ().second == shared_class::PlayerRole::assistAttacker);
+}
+
+TEST_CASE ("WithEnumPairOptionalVector combination", "[combination]")
+{
+  auto withEnumPairOptionalVector = shared_class::WithEnumPairOptionalVector{};
+  auto withEnumPairOptionalVectorTest = to_object<shared_class::WithEnumPairOptionalVector> (to_json (withEnumPairOptionalVector));
+  REQUIRE (withEnumPairOptionalVectorTest.withEnumPairOptionalVector.empty ());
+  withEnumPairOptionalVector = shared_class::WithEnumPairOptionalVector{};
+  withEnumPairOptionalVector.withEnumPairOptionalVector.push_back (std::pair<shared_class::PlayerRole, std::optional<shared_class::PlayerRole>>{ shared_class::PlayerRole::waiting, shared_class::PlayerRole::assistAttacker });
+  withEnumPairOptionalVector.withEnumPairOptionalVector.push_back (std::pair<shared_class::PlayerRole, std::optional<shared_class::PlayerRole>>{ shared_class::PlayerRole::waiting, std::nullopt });
+  REQUIRE (withEnumPairOptionalVector.withEnumPairOptionalVector.size () == 2);
+  REQUIRE (withEnumPairOptionalVector.withEnumPairOptionalVector.at (0).first == shared_class::PlayerRole::waiting);
+  REQUIRE (withEnumPairOptionalVector.withEnumPairOptionalVector.at (0).second == shared_class::PlayerRole::assistAttacker);
+  REQUIRE (withEnumPairOptionalVector.withEnumPairOptionalVector.at (1).first == shared_class::PlayerRole::waiting);
+  REQUIRE_FALSE (withEnumPairOptionalVector.withEnumPairOptionalVector.at (1).second.has_value ());
+}
