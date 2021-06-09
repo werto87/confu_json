@@ -3,4 +3,5 @@
  to_object.hxx
  concept.hxx
  util.hxx
+ confu_json.hxx
 )

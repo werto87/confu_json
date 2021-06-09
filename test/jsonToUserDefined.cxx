@@ -1,5 +1,4 @@
-#include "confu_json/to_json.hxx"
-#include "confu_json/to_object.hxx"
+#include "confu_json/confu_json.hxx"
 #include "test/constant.hxx"
 #include <catch2/catch.hpp>
 using namespace boost::json;
@@ -149,9 +148,6 @@ TEST_CASE ("NestedVectorOptional", "[test]")
   // TODO [pair] think about if it makes sense to have something like
   // [{"Nested":{"answer":42}},{"Nested":{"answer":42}}]
   // maybe we can get rid of the name
-  // TODO test all durak types they make problems
-  // TODO add enum support for to_object
-  // TODO move read_json from concepts into util header
   // TODO add new header for convinience
 
   array arr;
