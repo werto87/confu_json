@@ -123,4 +123,5 @@ struct NestedPairOptionalVector
 }
 BOOST_FUSION_ADAPT_STRUCT (shared_class::NestedPairOptionalVector, nestedPairOptionalVector)
 
+BOOST_FUSION_DEFINE_STRUCT ((shared_class), CreateAccount, (std::string, accountName) (std::string, password))
 #endif /* FE334B5B_FA67_454D_A6F5_A1CBF7D02BB7 */

@@ -7,7 +7,7 @@
 namespace confu_json
 {
 
-template <typename T> concept printable = requires(T t) { std::cout << t; };
+template <typename T> concept IsPrintable = requires(T t) { std::cout << t; };
 
 template <typename T> concept IsOptional = requires(T t) { t.has_value (); };
 

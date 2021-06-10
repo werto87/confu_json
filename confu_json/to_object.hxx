@@ -38,7 +38,7 @@ handleOptional (T &t, U &_value, std::string const &name)
           handleOptional (t, jsonDataForMember, name);
         }
     }
-  else if constexpr (printable<optionalType>)
+  else if constexpr (IsPrintable<optionalType>)
     {
       if (jsonDataForMember.kind () == kind::string) t = jsonDataForMember.as_string ().c_str ();
     }
@@ -94,7 +94,7 @@ to_object (boost::json::value const &_value)
             handleOptional (member, _value, memberName);
           }
       }
-    else if constexpr (printable<currentType>)
+    else if constexpr (IsPrintable<currentType>)
       {
         if (jsonDataForMember.kind () == kind::string) member = jsonDataForMember.as_string ().c_str ();
       }
@@ -140,7 +140,7 @@ to_object (boost::json::value const &_value)
                               {
                                 member.push_back (element.as_uint64 ());
                               }
-                            else if constexpr (printable<optionalType>)
+                            else if constexpr (IsPrintable<optionalType>)
                               {
                                 if (element.kind () == kind::string) member.push_back (std::string{ element.as_string ().c_str () });
                                 else

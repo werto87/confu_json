@@ -253,3 +253,13 @@ TEST_CASE ("WithEnumPairOptionalVector combination", "[combination]")
   REQUIRE (withEnumPairOptionalVector.withEnumPairOptionalVector.at (1).first == shared_class::PlayerRole::waiting);
   REQUIRE_FALSE (withEnumPairOptionalVector.withEnumPairOptionalVector.at (1).second.has_value ());
 }
+
+TEST_CASE ("CreateAccount combination", "[combination]")
+{
+  auto createAccount = shared_class::CreateAccount{};
+  createAccount.accountName = "aa";
+  createAccount.password = "aa";
+  auto createAccountTest = to_object<shared_class::CreateAccount> (to_json (createAccount));
+  REQUIRE (createAccount.accountName == createAccountTest.accountName);
+  REQUIRE (createAccount.password == createAccountTest.password);
+}

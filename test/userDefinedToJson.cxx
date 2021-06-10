@@ -182,3 +182,10 @@ TEST_CASE ("VectorWithPairOfInt", "[to_json]")
   vectorWithPairOfInt.vectorWithPairOfInt.push_back (std::make_pair (1, 2));
   std::cout << to_json (vectorWithPairOfInt) << std::endl;
 }
+TEST_CASE ("CreateAccount", "[to_json]")
+{
+  auto createAccount = shared_class::CreateAccount{};
+  createAccount.accountName = "aa";
+  createAccount.password = "aa";
+  std::cout << to_json (createAccount) << std::endl;
+}

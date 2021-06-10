@@ -195,7 +195,7 @@ to_json (T const &t)
       {
         obj[memberName] = std::string{ magic_enum::enum_name (member) };
       }
-    else if constexpr (IsArray<currentType>)
+    else if constexpr (IsArray<currentType> and not IsPrintable<currentType>)
       {
         using elementType = std::remove_reference_t<decltype (member.front ())>;
         array result;
