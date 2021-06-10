@@ -79,12 +79,15 @@ to_object (boost::json::value const &_value)
       {
         member = jsonDataForMember.as_bool ();
       }
-    else if constexpr (std::is_signed<currentType>::value)
+    else if constexpr (std::is_signed<currentType>::value || std::is_unsigned<currentType>::value)
       {
         member = jsonDataForMember.as_int64 ();
       }
     else if constexpr (std::is_unsigned<currentType>::value)
       {
+        // TODO think about unsigned support how to save a number in a json so we can say its an unsigned for example we have 2 in a json is this unsigned or not?
+        std::cout << memberName << std::endl;
+        std::cout << jsonDataForMember << std::endl;
         member = jsonDataForMember.as_uint64 ();
       }
     else if constexpr (IsOptional<currentType>)

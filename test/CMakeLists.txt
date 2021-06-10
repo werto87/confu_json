@@ -10,6 +10,9 @@ constant.hxx
 combineToJsonAndToObject.cxx
 ${TARGET_SOURCES}
  )
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -g")
+
  if (CMAKE_BINARY_DIR)
  target_compile_definitions(${TEST_TARGET_NAME} PRIVATE PATH_TO_BINARY="${CMAKE_BINARY_DIR}")
  endif()

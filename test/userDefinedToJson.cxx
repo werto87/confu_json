@@ -189,3 +189,15 @@ TEST_CASE ("CreateAccount", "[to_json]")
   createAccount.password = "aa";
   std::cout << to_json (createAccount) << std::endl;
 }
+
+TEST_CASE ("UsersInGameLobby", "[to_json]")
+{
+  auto usersInGameLobby = shared_class::UsersInGameLobby{};
+  std::cout << to_json (usersInGameLobby) << std::endl;
+  usersInGameLobby.maxUserSize = 2;
+  usersInGameLobby.name = "huhu";
+  usersInGameLobby.users = std::vector<shared_class::UserInGameLobby> (2);
+  usersInGameLobby.users.at (0).accountName = "aa";
+  usersInGameLobby.users.at (1).accountName = "bb";
+  std::cout << to_json (usersInGameLobby) << std::endl;
+}

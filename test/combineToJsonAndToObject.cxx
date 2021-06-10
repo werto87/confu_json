@@ -263,3 +263,13 @@ TEST_CASE ("CreateAccount combination", "[combination]")
   REQUIRE (createAccount.accountName == createAccountTest.accountName);
   REQUIRE (createAccount.password == createAccountTest.password);
 }
+
+TEST_CASE ("UsersInGameLobby combination", "[test]")
+{
+  auto jsonAsText = std::string{ R"foo({"name":"huhu","users":[{"UserInGameLobby":{"accountName":"aa"}},{"UserInGameLobby":{"accountName":"bb"}}],"maxUserSize":2})foo" };
+  error_code ec{};
+  auto value = read_json (jsonAsText, ec);
+  auto usersInGameLobby = to_object<shared_class::UsersInGameLobby> (value);
+  std::cout << ec.message () << std::endl;
+  REQUIRE (usersInGameLobby.maxUserSize == 2);
+}

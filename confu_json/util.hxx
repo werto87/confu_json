@@ -33,6 +33,7 @@ type_name ()
 inline boost::json::value
 read_json (std::stringstream &is, boost::json::error_code &ec)
 {
+  // TODO think about unsigned support how to save a number in a json so we can say its an unsigned for example we have 2 in a json is this unsigned or not?
   boost::json::stream_parser p;
   std::string line;
   while (std::getline (is, line))
