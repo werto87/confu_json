@@ -168,7 +168,7 @@ TEST_CASE ("NestedVectorOptional", "[test]")
   std::stringstream is{};
   error_code ec{};
   is << obj2;
-  auto value = read_json (is, ec);
+  auto value = read_json (is.str (), ec);
   std::cout << obj2 << std::endl;
   std::cout << std::boolalpha;
   std::cout << to_object<shared_class::NestedVectorOptional> (value).intNestedVectorOptional.at (0).value () << std::endl;

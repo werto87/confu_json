@@ -44,5 +44,14 @@ read_json (std::stringstream &is, boost::json::error_code &ec)
   if (ec) return nullptr;
   return p.release ();
 }
+
+inline boost::json::value
+read_json (std::string const &jsonAsString, boost::json::error_code &ec)
+{
+  std::stringstream is{};
+  is << jsonAsString;
+  return read_json (is, ec);
+}
+
 }
 #endif /* EFBB6F2B_7B2E_4BD2_AF22_95E2E7BEDBD6 */
