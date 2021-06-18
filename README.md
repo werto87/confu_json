@@ -1,4 +1,4 @@
-# confu-json
+# confu_json
 ## Helps you with parsing  json to user defined type and vice versa.
 
 ## How to:
