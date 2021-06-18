@@ -1,3 +1,9 @@
+//
+// Copyright (c) 2021 Waldemar Schneider (w-schneider1987 at web dot de)
+//
+// Distributed under the Boost Software License, Version 1.0.
+// (See accompanying file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+//
 #ifndef F5E56D46_F48D_4E89_B6F1_5D734D665E8D
 #define F5E56D46_F48D_4E89_B6F1_5D734D665E8D
 #include "confu_json/concept.hxx"
