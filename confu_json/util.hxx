@@ -1,3 +1,9 @@
+//
+// Copyright (c) 2021 Waldemar Schneider (w-schneider1987 at web dot de)
+//
+// Distributed under the Boost Software License, Version 1.0.
+// (See accompanying file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+//
 #ifndef EFBB6F2B_7B2E_4BD2_AF22_95E2E7BEDBD6
 #define EFBB6F2B_7B2E_4BD2_AF22_95E2E7BEDBD6
 
