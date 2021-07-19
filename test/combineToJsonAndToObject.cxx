@@ -273,3 +273,12 @@ TEST_CASE ("UsersInGameLobby combination", "[test]")
   std::cout << ec.message () << std::endl;
   REQUIRE (usersInGameLobby.maxUserSize == 2);
 }
+
+TEST_CASE ("DurakTimers", "[to_json]")
+{
+  auto durakTimers = shared_class::DurakTimers{};
+  durakTimers.runningTimeUserTimePointMilliseconds.push_back (std::make_pair ("some string", 42));
+  auto durakTimersTest = to_object<shared_class::DurakTimers> (to_json (durakTimers));
+  REQUIRE (durakTimers.runningTimeUserTimePointMilliseconds.at (0).first == durakTimersTest.runningTimeUserTimePointMilliseconds.at (0).first);
+  REQUIRE (durakTimers.runningTimeUserTimePointMilliseconds.at (0).second == durakTimersTest.runningTimeUserTimePointMilliseconds.at (0).second);
+}

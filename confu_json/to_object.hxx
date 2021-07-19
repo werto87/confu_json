@@ -208,6 +208,18 @@ to_object (boost::json::value const &_value)
                                 std::cout << type_name<firstType> () << ": not supported enum value: " << element.as_string ().c_str () << std::endl;
                               }
                           }
+                        else if constexpr (std::is_same<bool, firstType>::value)
+                          {
+                            result.first = element.at (0).as_bool ();
+                          }
+                        else if constexpr (std::is_signed<firstType>::value || std::is_unsigned<firstType>::value)
+                          {
+                            result.first = element.at (0).as_int64 ();
+                          }
+                        else if constexpr (IsPrintable<firstType>)
+                          {
+                            if (element.at (0).kind () == kind::string) result.first = element.at (0).as_string ().c_str ();
+                          }
                         else
                           {
                             result.first = to_object<firstType> (element.at (0).at (type_name<firstType> ()));
@@ -235,6 +247,18 @@ to_object (boost::json::value const &_value)
                               {
                                 std::cout << type_name<secondType> () << ": not supported enum value: " << element.as_string ().c_str () << std::endl;
                               }
+                          }
+                        else if constexpr (std::is_same<bool, secondType>::value)
+                          {
+                            result.second = element.at (1).as_bool ();
+                          }
+                        else if constexpr (std::is_signed<secondType>::value || std::is_unsigned<secondType>::value)
+                          {
+                            result.second = element.at (1).as_int64 ();
+                          }
+                        else if constexpr (IsPrintable<secondType>)
+                          {
+                            if (element.at (1).kind () == kind::string) result.second = element.at (1).as_string ().c_str ();
                           }
                         else
                           {
