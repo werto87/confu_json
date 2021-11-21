@@ -129,4 +129,15 @@ BOOST_FUSION_DEFINE_STRUCT ((shared_class), UsersInGameLobby, (std::string, name
 typedef std::vector<std::pair<std::string, long long int>> UserTimeMilliseconds;
 BOOST_FUSION_DEFINE_STRUCT ((shared_class), DurakTimers, (UserTimeMilliseconds, runningTimeUserTimePointMilliseconds))
 
+namespace shared_class
+{
+struct OptionalVector
+{
+  boost::optional<std::vector<std::string>> optionalVectorString{};
+  boost::optional<std::vector<int>> optionalVectorInt{};
+  boost::optional<std::vector<Nested>> optionalVectorNested{};
+};
+}
+BOOST_FUSION_ADAPT_STRUCT (shared_class::OptionalVector, optionalVectorString , optionalVectorInt, optionalVectorNested)
+
 #endif /* FE334B5B_FA67_454D_A6F5_A1CBF7D02BB7 */

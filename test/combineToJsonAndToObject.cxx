@@ -282,3 +282,26 @@ TEST_CASE ("DurakTimers", "[to_json]")
   REQUIRE (durakTimers.runningTimeUserTimePointMilliseconds.at (0).first == durakTimersTest.runningTimeUserTimePointMilliseconds.at (0).first);
   REQUIRE (durakTimers.runningTimeUserTimePointMilliseconds.at (0).second == durakTimersTest.runningTimeUserTimePointMilliseconds.at (0).second);
 }
+
+TEST_CASE ("OptionalVectorHasValue", "[combine]")
+{
+  auto optionalVector = shared_class::OptionalVector{ { { "huhu" } }, { { 42 } }, { { shared_class::Nested{} } } };
+  std::cout << to_json (optionalVector);
+  auto optionalVectorTest = to_object<shared_class::OptionalVector> (to_json (optionalVector));
+  REQUIRE (optionalVectorTest.optionalVectorInt.has_value ());
+  REQUIRE (optionalVectorTest.optionalVectorString.has_value ());
+  REQUIRE (optionalVectorTest.optionalVectorNested.has_value ());
+  REQUIRE (optionalVector.optionalVectorString.value () == optionalVectorTest.optionalVectorString.value ());
+  REQUIRE (optionalVector.optionalVectorInt.value () == optionalVectorTest.optionalVectorInt.value ());
+  REQUIRE (optionalVector.optionalVectorNested.value ().at (0).answer == optionalVectorTest.optionalVectorNested.value ().at (0).answer);
+}
+
+TEST_CASE ("OptionalVector", "[combine]")
+{
+  auto optionalVector = shared_class::OptionalVector{};
+  std::cout << to_json (optionalVector);
+  auto optionalVectorTest = to_object<shared_class::OptionalVector> (to_json (optionalVector));
+  REQUIRE_FALSE (optionalVectorTest.optionalVectorInt.has_value ());
+  REQUIRE_FALSE (optionalVectorTest.optionalVectorString.has_value ());
+  REQUIRE_FALSE (optionalVectorTest.optionalVectorNested.has_value ());
+}
