@@ -19,7 +19,11 @@ template <typename T> concept IsOptional = requires(T t) { t.has_value (); };
 
 template <typename T> concept IsPair = requires(T t) { t.second; };
 
-template <typename T> concept IsArray = requires(T t) { t.size (); };
+template <class, template <class...> class> constexpr bool is_specialization = false;
+
+template <template <class...> class T, class... Args> inline constexpr bool is_specialization<T<Args...>, T> = true;
+
+template <class T> concept isVector = is_specialization<T, std::vector>;
 
 template <typename T> using is_adapted_struct = std::is_same<typename boost::fusion::traits::tag_of<T>::type, boost::fusion::struct_tag>;
 

@@ -93,7 +93,7 @@ template <class T>
 bool
 handleOptional (boost::json::object &result, T const &t, std::string const &memberName)
 {
-  using optionalType = std::remove_reference_t<decltype (t.value ())>;
+  using optionalType = typename std::decay<decltype (t.value ())>::type;
   if constexpr (boost::fusion::traits::is_sequence<optionalType>::value)
     {
       if (t.has_value ())
@@ -117,7 +117,7 @@ handleOptional (boost::json::object &result, T const &t, std::string const &memb
             }
           else
             {
-              if constexpr (IsArray<optionalType> and not IsPrintable<optionalType>)
+              if constexpr (isVector<optionalType>)
                 {
                   // handle optional case when vector is optional
                   using namespace boost::json;
@@ -256,7 +256,7 @@ to_json (T const &t)
   using namespace boost::json;
   object obj; // construct an empty object
   boost::fusion::for_each (boost::mpl::range_c<unsigned, 0, boost::fusion::result_of::size<T>::value> (), [&] (auto index) {
-    using currentType = std::remove_reference_t<decltype (boost::fusion::at_c<index> (t))>;
+    using currentType = typename std::decay<decltype (boost::fusion::at_c<index> (t))>::type;
     auto &member = boost::fusion::at_c<index> (t);
     auto memberName = boost::fusion::extension::struct_member_name<T, index>::call ();
     if constexpr (boost::fusion::traits::is_sequence<currentType>::value)
@@ -282,7 +282,7 @@ to_json (T const &t)
       {
         obj[memberName] = std::string{ magic_enum::enum_name (member) };
       }
-    else if constexpr (IsArray<currentType> and not IsPrintable<currentType>)
+    else if constexpr (isVector<currentType>)
       {
         array result;
         handleArray (result, member);

@@ -222,7 +222,7 @@ handleOptional (T &t, U &_value, std::string const &name)
   using namespace boost::json;
   auto &jsonDataForMember = _value.as_object ().at (name);
 
-  using optionalType = std::remove_reference_t<decltype (t.value ())>;
+  using optionalType = typename std::decay<decltype (t.value ())>::type;
   if constexpr (std::is_same<bool, optionalType>::value)
     {
       t = jsonDataForMember.as_bool ();
@@ -242,7 +242,7 @@ handleOptional (T &t, U &_value, std::string const &name)
           handleOptional (t, jsonDataForMember, name);
         }
     }
-  else if constexpr (IsPrintable<optionalType>)
+  else if constexpr (IsPrintable<optionalType> && not isVector<optionalType>)
     {
       if (jsonDataForMember.kind () == kind::string) t = jsonDataForMember.as_string ().c_str ();
     }
@@ -266,7 +266,7 @@ handleOptional (T &t, U &_value, std::string const &name)
     {
       t = to_object<optionalType> (jsonDataForMember.as_object ());
     }
-  else if constexpr (IsArray<optionalType> and not IsPrintable<optionalType>)
+  else if constexpr (isVector<optionalType>)
     {
       auto tmp = optionalType{};
       handleArray (tmp, jsonDataForMember);
@@ -311,7 +311,7 @@ to_object (boost::json::value const &_value)
       }
     else
       {
-        if constexpr (IsArray<currentType>)
+        if constexpr (isVector<currentType>)
           {
             handleArray (member, jsonDataForMember);
           }

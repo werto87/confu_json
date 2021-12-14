@@ -4,6 +4,7 @@
 #include <catch2/catch.hpp>
 using namespace boost::json;
 using namespace confu_json;
+
 TEST_CASE ("Nested combination", "[combination]")
 {
   auto nested = shared_class::Nested{};
