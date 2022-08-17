@@ -21,7 +21,7 @@ auto
 type_name ()
 {
 #ifdef _MSC_VER
-  name = __FUNCSIG__;
+  std::string_view name = __FUNCSIG__;
   auto fullName = std::vector<std::string>{};
   boost::algorithm::split (fullName, name, boost::is_any_of ("::"));
   boost::erase_all (fullName.back (), ">(void)");
