@@ -8,9 +8,18 @@
 #define F5E56D46_F48D_4E89_B6F1_5D734D665E8D
 #include "confu_json/concept.hxx"
 #include "confu_json/util.hxx"
+#include <boost/fusion/adapted/struct/adapt_struct.hpp>
 #include <boost/fusion/adapted/struct/define_struct.hpp>
+#include <boost/fusion/algorithm/iteration/for_each.hpp>
 #include <boost/fusion/include/algorithm.hpp>
+#include <boost/fusion/include/at_c.hpp>
+#include <boost/fusion/include/back.hpp>
+#include <boost/fusion/include/define_struct.hpp>
+#include <boost/fusion/include/for_each.hpp>
+#include <boost/fusion/include/mpl.hpp>
+#include <boost/fusion/include/vector.hpp>
 #include <boost/mpl/range_c.hpp>
+#include <boost/mpl/size.hpp>
 #include <magic_enum.hpp>
 namespace confu_json
 {

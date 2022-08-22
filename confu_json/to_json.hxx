@@ -9,11 +9,21 @@
 
 #include "confu_json/concept.hxx"
 #include "confu_json/util.hxx"
+#include <boost/fusion/adapted/struct/adapt_struct.hpp>
+#include <boost/fusion/adapted/struct/define_struct.hpp>
+#include <boost/fusion/algorithm/iteration/for_each.hpp>
 #include <boost/fusion/include/algorithm.hpp>
+#include <boost/fusion/include/at_c.hpp>
+#include <boost/fusion/include/back.hpp>
 #include <boost/fusion/include/define_struct.hpp>
+#include <boost/fusion/include/for_each.hpp>
+#include <boost/fusion/include/mpl.hpp>
 #include <boost/fusion/include/std_pair.hpp>
+#include <boost/fusion/include/vector.hpp>
 #include <boost/mpl/range_c.hpp>
+#include <boost/mpl/size.hpp>
 #include <magic_enum.hpp>
+
 namespace confu_json
 {
 template <class T> void handlePair (boost::json::object &result, T const &member, std::string const &memberName);
