@@ -25,6 +25,7 @@ type_name ()
   auto fullName = std::vector<std::string>{};
   boost::algorithm::split (fullName, name, boost::is_any_of ("::"));
   boost::erase_all (fullName.back (), ">(void)");
+  boost::erase_all (fullName.back (), ">");
 #else
   std::string_view name = __PRETTY_FUNCTION__;
   auto fullName = std::vector<std::string>{};
