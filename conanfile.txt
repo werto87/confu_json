@@ -1,8 +1,7 @@
 [requires]
 catch2/2.13.7
-boost/1.78.0
+boost/1.79.0
 magic_enum/0.7.2
 [generators]
 cmake
 [options]
-boost:header_only=True
