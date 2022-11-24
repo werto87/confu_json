@@ -30,18 +30,21 @@ template <class T> void handlePair (boost::json::object &result, T const &member
 template <class T> bool handleOptional (boost::json::object &result, T const &t, std::string const &memberName);
 template <class T> boost::json::object to_json (T const &t);
 
+ template <typename> struct Debug;
+
+
 template <class T>
 void
 handleArray (boost::json::array &result, T const &t)
 {
-  using elementType = std::remove_reference_t<decltype (t.front ())>;
+  using elementType = std::decay_t<decltype (t.front ())>;
   using namespace boost::json;
   for (auto const &element : t)
     {
       object tmp;
       if constexpr (IsOptional<elementType>)
         {
-          using optionalType = std::remove_reference_t<decltype (element.value ())>;
+          using optionalType = std::decay_t<decltype (element.value ())>;
           if constexpr (boost::fusion::traits::is_sequence<optionalType>::value)
             {
               if (handleOptional (tmp, element, std::string{ type_name<elementType> () }))
@@ -83,6 +86,13 @@ handleArray (boost::json::array &result, T const &t)
         {
           tmp[std::string{ type_name<elementType> () }] = to_json (element);
           result.push_back (tmp);
+        }
+      else if constexpr (isVector<elementType>)
+        {
+          using namespace boost::json;
+          array tmpArray;
+          handleArray (tmpArray, element);
+          result.push_back (tmpArray);
         }
       else
         {
@@ -155,8 +165,8 @@ void
 handlePair (boost::json::object &result, T const &member, std::string const &memberName)
 {
   using namespace boost::json;
-  using pairTypeFirst = std::remove_reference_t<decltype (member.first)>;
-  using pairTypeSecond = std::remove_reference_t<decltype (member.second)>;
+  using pairTypeFirst = std::decay_t<decltype (member.first)>;
+  using pairTypeSecond = std::decay_t<decltype (member.second)>;
   array pairArray;
   if constexpr (IsOptional<pairTypeFirst>)
     {

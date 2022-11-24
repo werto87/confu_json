@@ -306,3 +306,34 @@ TEST_CASE ("OptionalVector", "[combine]")
   REQUIRE_FALSE (optionalVectorTest.optionalVectorString.has_value ());
   REQUIRE_FALSE (optionalVectorTest.optionalVectorNested.has_value ());
 }
+
+
+TEST_CASE ("VectorOfVector", "[combine]")
+{
+  auto vectorOfVector = shared_class::VectorOfVector{};
+  vectorOfVector.vectorOfVector={{42},{42 ,12}};
+  std::cout << to_json (vectorOfVector);
+  auto vectorOfVectorTest = to_object<shared_class::VectorOfVector> (to_json (vectorOfVector));
+  REQUIRE(vectorOfVector.vectorOfVector == vectorOfVectorTest.vectorOfVector);
+}
+
+
+TEST_CASE ("OptionalVectorOfVector no value", "[combine]")
+{
+  auto optionalVectorOfVector = shared_class::OptionalVectorOfVector{};
+  std::cout << to_json (optionalVectorOfVector);
+  auto optionalVectorOfVectorTest = to_object<shared_class::OptionalVectorOfVector> (to_json (optionalVectorOfVector));
+  REQUIRE_FALSE (optionalVectorOfVectorTest.optionalVectorOfVector.has_value ());
+}
+
+TEST_CASE ("OptionalVectorOfVector value", "[combine]")
+{
+  auto optionalVectorOfVector = shared_class::OptionalVectorOfVector{};
+  optionalVectorOfVector.optionalVectorOfVector=boost::optional<std::vector<std::vector<int>>>{ {} };
+  optionalVectorOfVector.optionalVectorOfVector->push_back ({42,42});
+  optionalVectorOfVector.optionalVectorOfVector->push_back ({32,12});
+  std::cout << to_json (optionalVectorOfVector);
+  auto optionalVectorOfVectorTest = to_object<shared_class::OptionalVectorOfVector> (to_json (optionalVectorOfVector));
+  REQUIRE (optionalVectorOfVectorTest.optionalVectorOfVector.has_value ());
+  REQUIRE (optionalVectorOfVectorTest.optionalVectorOfVector.value() == optionalVectorOfVectorTest.optionalVectorOfVector.value());
+}

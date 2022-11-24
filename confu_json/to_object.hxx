@@ -192,6 +192,16 @@ handleArray (T &t, U &_value)
           t.push_back (result);
         }
     }
+  else if  constexpr (isVector<someTypeOtherType>)
+    {
+        for (value const &element : _value.as_array ())
+          {
+            auto tmp = someTypeOtherType{};
+            handleArray (tmp, element);
+            t.push_back (tmp);
+          }
+
+    }
   else
     {
       if constexpr (boost::fusion::traits::is_sequence<someTypeOtherType>::value)

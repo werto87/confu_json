@@ -139,5 +139,6 @@ struct OptionalVector
 };
 }
 BOOST_FUSION_ADAPT_STRUCT (shared_class::OptionalVector, optionalVectorString , optionalVectorInt, optionalVectorNested)
-
+BOOST_FUSION_DEFINE_STRUCT ((shared_class), VectorOfVector, (std::vector<std::vector<int>>, vectorOfVector))
+BOOST_FUSION_DEFINE_STRUCT ((shared_class), OptionalVectorOfVector, (boost::optional<std::vector<std::vector<int>>>, optionalVectorOfVector))
 #endif /* FE334B5B_FA67_454D_A6F5_A1CBF7D02BB7 */
