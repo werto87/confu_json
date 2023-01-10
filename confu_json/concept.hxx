@@ -8,22 +8,46 @@
 #define A0BAA2CA_6E62_4337_B0BE_F4AFE5469841
 #include <boost/algorithm/string.hpp>
 #include <boost/fusion/adapted/struct/adapt_struct.hpp>
+#include <boost/lambda/detail/is_instance_of.hpp>
+#include <boost/optional/optional.hpp>
 #include <iostream>
 #include <string_view>
 namespace confu_json
 {
 
-template <typename T> concept IsPrintable = requires(T t) { std::cout << t; };
+template <typename T> struct is_std_string : std::bool_constant<std::is_same<std::decay_t<T>, std::string>::value>
+{
+};
 
-template <typename T> concept IsOptional = requires(T t) { t.has_value (); };
+template <class T> struct is_std_optional : boost::lambda::is_instance_of_1<T, std::optional>
+{
+};
 
-template <typename T> concept IsPair = requires(T t) { t.second; };
+template <class T> struct is_boost_optional : boost::lambda::is_instance_of_1<T, boost::optional>
+{
+};
 
-template <class, template <class...> class> constexpr bool is_specialization = false;
+template <typename T> struct is_std_pair : public std::false_type
+{
+};
 
-template <template <class...> class T, class... Args> inline constexpr bool is_specialization<T<Args...>, T> = true;
+template <typename T>
+constexpr bool
+is_std_or_boost_optional ()
+{
+  return is_std_optional<T>::value or is_boost_optional<T>::value;
+}
+template <typename S, typename T> struct is_std_pair<std::pair<S, T>> : public std::true_type
+{
+};
 
-template <class T> concept isVector = is_specialization<T, std::vector>;
+template <typename> struct is_std_vector : std::false_type
+{
+};
+
+template <typename T, typename A> struct is_std_vector<std::vector<T, A>> : std::true_type
+{
+};
 
 }
 #endif /* A0BAA2CA_6E62_4337_B0BE_F4AFE5469841 */

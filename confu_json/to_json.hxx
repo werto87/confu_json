@@ -41,7 +41,7 @@ handleArray (boost::json::array &result, T const &t)
   for (auto const &element : t)
     {
       object tmp;
-      if constexpr (IsOptional<elementType>)
+      if constexpr (is_std_or_boost_optional<elementType> ())
         {
           using optionalType = std::decay_t<decltype (element.value ())>;
           if constexpr (boost::fusion::traits::is_sequence<optionalType>::value)
@@ -76,7 +76,7 @@ handleArray (boost::json::array &result, T const &t)
                 }
             }
         }
-      else if constexpr (IsPair<elementType>)
+      else if constexpr (is_std_pair<elementType>::value)
         {
           handlePair (tmp, element, std::string{ type_name<elementType> () });
           result.push_back (tmp.at (std::string{ type_name<elementType> () }).as_array ());
@@ -86,7 +86,7 @@ handleArray (boost::json::array &result, T const &t)
           tmp[std::string{ type_name<elementType> () }] = to_json (element);
           result.push_back (tmp);
         }
-      else if constexpr (isVector<elementType>)
+      else if constexpr (is_std_vector<elementType>::value)
         {
           using namespace boost::json;
           array tmpArray;
@@ -136,7 +136,7 @@ handleOptional (boost::json::object &result, T const &t, std::string const &memb
             }
           else
             {
-              if constexpr (isVector<optionalType>)
+              if constexpr (is_std_vector<optionalType>::value)
                 {
                   // handle optional case when vector is optional
                   using namespace boost::json;
@@ -167,7 +167,7 @@ handlePair (boost::json::object &result, T const &member, std::string const &mem
   using pairTypeFirst = std::decay_t<decltype (member.first)>;
   using pairTypeSecond = std::decay_t<decltype (member.second)>;
   array pairArray;
-  if constexpr (IsOptional<pairTypeFirst>)
+  if constexpr (is_std_or_boost_optional<pairTypeFirst> ())
     {
       if constexpr (boost::fusion::traits::is_sequence<pairTypeFirst>::value) // looks fishy how can the type be optional and fusion sequence
         {
@@ -216,7 +216,7 @@ handlePair (boost::json::object &result, T const &member, std::string const &mem
             }
         }
     }
-  if constexpr (IsOptional<pairTypeSecond>)
+  if constexpr (is_std_or_boost_optional<pairTypeSecond> ())
     {
       if constexpr (boost::fusion::traits::is_sequence<pairTypeSecond>::value) // looks fishy how can the type be optional and fusion sequence
         {
@@ -278,7 +278,7 @@ to_json (T const &t)
     using currentType = typename std::decay<decltype (boost::fusion::at_c<index> (t))>::type;
     auto &member = boost::fusion::at_c<index> (t);
     auto memberName = boost::fusion::extension::struct_member_name<T, index>::call ();
-    if constexpr (IsOptional<currentType>)
+    if constexpr (is_std_or_boost_optional<currentType> ())
       {
         handleOptional (obj, member, memberName);
       }
@@ -286,13 +286,13 @@ to_json (T const &t)
       {
         obj[memberName] = std::string{ magic_enum::enum_name (member) };
       }
-    else if constexpr (isVector<currentType>)
+    else if constexpr (is_std_vector<currentType>::value)
       {
         array result;
         handleArray (result, member);
         obj[memberName] = result;
       }
-    else if constexpr (IsPair<currentType>)
+    else if constexpr (is_std_pair<currentType>::value)
       {
         handlePair (obj, member, memberName);
       }

@@ -35,7 +35,7 @@ handleArray (T &t, U &_value)
   using namespace boost::json;
   using someTypeOtherType = std::remove_reference_t<decltype (t.front ())>;
 
-  if constexpr (IsOptional<someTypeOtherType>)
+  if constexpr (is_std_or_boost_optional<someTypeOtherType> ())
     {
       using optionalType = std::remove_reference_t<decltype (t.front ().value ())>;
       if constexpr (boost::fusion::traits::is_sequence<optionalType>::value)
@@ -73,7 +73,7 @@ handleArray (T &t, U &_value)
                     {
                       t.push_back (element.as_uint64 ());
                     }
-                  else if constexpr (IsPrintable<optionalType>)
+                  else if constexpr (is_std_string<optionalType>::value)
                     {
                       if (element.kind () == kind::string) t.push_back (std::string{ element.as_string ().c_str () });
                       else
@@ -103,14 +103,14 @@ handleArray (T &t, U &_value)
             }
         }
     }
-  else if constexpr (IsPair<someTypeOtherType>)
+  else if constexpr (is_std_pair<someTypeOtherType>::value)
     {
       for (auto &element : _value.as_array ())
         {
           auto result = someTypeOtherType{};
           using firstType = std::remove_reference_t<decltype (result.first)>;
           using secondType = std::remove_reference_t<decltype (result.second)>;
-          if constexpr (IsOptional<firstType>)
+          if constexpr (is_std_or_boost_optional<firstType> ())
             {
               if (not element.at (0).is_null ())
                 {
@@ -140,7 +140,7 @@ handleArray (T &t, U &_value)
                 {
                   result.first = element.at (0).as_int64 ();
                 }
-              else if constexpr (IsPrintable<firstType>)
+              else if constexpr (is_std_string<firstType>::value)
                 {
                   if (element.at (0).kind () == kind::string) result.first = element.at (0).as_string ().c_str ();
                 }
@@ -150,7 +150,7 @@ handleArray (T &t, U &_value)
                 }
             }
 
-          if constexpr (IsOptional<secondType>)
+          if constexpr (is_std_or_boost_optional<secondType> ())
             {
               if (not element.at (1).is_null ())
                 {
@@ -180,7 +180,7 @@ handleArray (T &t, U &_value)
                 {
                   result.second = element.at (1).as_int64 ();
                 }
-              else if constexpr (IsPrintable<secondType>)
+              else if constexpr (is_std_string<secondType>::value)
                 {
                   if (element.at (1).kind () == kind::string) result.second = element.at (1).as_string ().c_str ();
                 }
@@ -192,15 +192,14 @@ handleArray (T &t, U &_value)
           t.push_back (result);
         }
     }
-  else if  constexpr (isVector<someTypeOtherType>)
+  else if constexpr (is_std_vector<someTypeOtherType>::value)
     {
-        for (value const &element : _value.as_array ())
-          {
-            auto tmp = someTypeOtherType{};
-            handleArray (tmp, element);
-            t.push_back (tmp);
-          }
-
+      for (value const &element : _value.as_array ())
+        {
+          auto tmp = someTypeOtherType{};
+          handleArray (tmp, element);
+          t.push_back (tmp);
+        }
     }
   else
     {
@@ -254,14 +253,14 @@ handleOptional (T &t, U &_value, std::string const &name)
     {
       t = jsonDataForMember.as_uint64 ();
     }
-  else if constexpr (IsOptional<optionalType>)
+  else if constexpr (is_std_or_boost_optional<optionalType> ())
     {
       if (not jsonDataForMember.is_null ())
         {
           handleOptional (t, jsonDataForMember, name);
         }
     }
-  else if constexpr (IsPrintable<optionalType> && not isVector<optionalType>)
+  else if constexpr (is_std_string<optionalType>::value && not is_std_vector<optionalType>::value)
     {
       if (jsonDataForMember.kind () == kind::string) t = jsonDataForMember.as_string ().c_str ();
     }
@@ -285,7 +284,7 @@ handleOptional (T &t, U &_value, std::string const &name)
     {
       t = to_object<optionalType> (jsonDataForMember.as_object ());
     }
-  else if constexpr (isVector<optionalType>)
+  else if constexpr (is_std_vector<optionalType>::value)
     {
       auto tmp = optionalType{};
       handleArray (tmp, jsonDataForMember);
@@ -317,29 +316,29 @@ to_object (boost::json::value const &_value)
         // TODO think about unsigned support how to save a number in a json so we can say its an unsigned for example we have 2 in a json is this unsigned or not?
         member = jsonDataForMember.as_uint64 ();
       }
-    else if constexpr (IsOptional<currentType>)
+    else if constexpr (is_std_or_boost_optional<currentType> ())
       {
         if (not jsonDataForMember.is_null ())
           {
             handleOptional (member, _value, memberName);
           }
       }
-    else if constexpr (IsPrintable<currentType>)
+    else if constexpr (is_std_string<currentType>::value)
       {
         if (jsonDataForMember.kind () == kind::string) member = jsonDataForMember.as_string ().c_str ();
       }
     else
       {
-        if constexpr (isVector<currentType>)
+        if constexpr (is_std_vector<currentType>::value)
           {
             handleArray (member, jsonDataForMember);
           }
-        else if constexpr (IsPair<currentType>)
+        else if constexpr (is_std_pair<currentType>::value)
           {
             using firstType = std::remove_reference_t<decltype (member.first)>;
             using secondType = std::remove_reference_t<decltype (member.second)>;
 
-            if constexpr (IsOptional<firstType>)
+            if constexpr (is_std_or_boost_optional<firstType> ())
               {
                 if (not jsonDataForMember.at (0).is_null ())
                   {
@@ -364,7 +363,7 @@ to_object (boost::json::value const &_value)
                 member.first = to_object<firstType> (jsonDataForMember.at (0).at (type_name<firstType> ()));
               }
 
-            if constexpr (IsOptional<secondType>)
+            if constexpr (is_std_or_boost_optional<secondType> ())
               {
                 if (not jsonDataForMember.at (1).is_null ())
                   {
