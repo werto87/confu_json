@@ -11,7 +11,9 @@
 #include <boost/lambda/detail/is_instance_of.hpp>
 #include <boost/optional/optional.hpp>
 #include <iostream>
+#include <optional>
 #include <string_view>
+
 namespace confu_json
 {
 
