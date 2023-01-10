@@ -25,9 +25,5 @@ template <template <class...> class T, class... Args> inline constexpr bool is_s
 
 template <class T> concept isVector = is_specialization<T, std::vector>;
 
-template <typename T> using is_adapted_struct = std::is_same<typename boost::fusion::traits::tag_of<T>::type, boost::fusion::struct_tag>;
-
-template <typename T> concept IsFusionStruct = requires(T t) { T::self_type; };
-
 }
 #endif /* A0BAA2CA_6E62_4337_B0BE_F4AFE5469841 */
