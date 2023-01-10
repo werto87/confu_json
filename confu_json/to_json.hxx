@@ -30,8 +30,7 @@ template <class T> void handlePair (boost::json::object &result, T const &member
 template <class T> bool handleOptional (boost::json::object &result, T const &t, std::string const &memberName);
 template <class T> boost::json::object to_json (T const &t);
 
- template <typename> struct Debug;
-
+template <typename> struct Debug;
 
 template <class T>
 void
@@ -274,27 +273,12 @@ boost::json::object
 to_json (T const &t)
 {
   using namespace boost::json;
-  object obj; // construct an empty object
+  object obj{};
   boost::fusion::for_each (boost::mpl::range_c<unsigned, 0, boost::fusion::result_of::size<T>::value> (), [&] (auto index) {
     using currentType = typename std::decay<decltype (boost::fusion::at_c<index> (t))>::type;
     auto &member = boost::fusion::at_c<index> (t);
     auto memberName = boost::fusion::extension::struct_member_name<T, index>::call ();
-    if constexpr (boost::fusion::traits::is_sequence<currentType>::value)
-      {
-        if constexpr (IsOptional<currentType>) // optional and fusion struct sounds fishy
-          {
-            handleOptional (obj, member, memberName);
-          }
-        else if constexpr (IsPair<currentType>) // pair and fusion struct sounds fishy
-          {
-            handlePair (obj, member, memberName);
-          }
-        else
-          {
-            obj[memberName] = to_json (member);
-          }
-      }
-    else if constexpr (IsOptional<currentType>)
+    if constexpr (IsOptional<currentType>)
       {
         handleOptional (obj, member, memberName);
       }
@@ -307,6 +291,14 @@ to_json (T const &t)
         array result;
         handleArray (result, member);
         obj[memberName] = result;
+      }
+    else if constexpr (IsPair<currentType>)
+      {
+        handlePair (obj, member, memberName);
+      }
+    else if constexpr (boost::fusion::traits::is_sequence<currentType>::value)
+      {
+        obj[memberName] = to_json (member);
       }
     else
       {
