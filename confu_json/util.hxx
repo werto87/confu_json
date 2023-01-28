@@ -11,6 +11,7 @@
 #include <boost/fusion/adapted/struct/adapt_struct.hpp>
 #include <boost/json.hpp>
 #include <iostream>
+#include <sstream>
 #include <string_view>
 
 namespace confu_json
