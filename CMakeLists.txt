@@ -4,7 +4,6 @@ project(project VERSION 1.0.0
         LANGUAGES CXX
         )
 include(cmake/Cache.cmake)
-find_package(magic_enum REQUIRED)
 add_library(project_warning INTERFACE)
 include(cmake/CompilerWarnings.cmake)
 set_project_warnings(project_warning)
