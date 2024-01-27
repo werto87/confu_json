@@ -1,18 +1,16 @@
-set(TEST_TARGET_NAME _test)
-add_executable(${TEST_TARGET_NAME} 
-main.cxx
-jsonToUserDefined.cxx
-userDefinedToJson.cxx
-constant.hxx
-combineToJsonAndToObject.cxx
+add_executable(_test
+        main.cxx
+        jsonToUserDefined.cxx
+        userDefinedToJson.cxx
+        constant.hxx
+        combineToJsonAndToObject.cxx
+        )
+find_package(Catch2)
+target_link_libraries(_test
+        confu_json
+        Catch2::Catch2
+        )
+target_include_directories(_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_SOURCE_DIR})
 
- )
-
-target_link_libraries(${TEST_TARGET_NAME}
-${TARGET_NAME}
- CONAN_PKG::catch2
-)
-target_include_directories(${TEST_TARGET_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_SOURCE_DIR})
-
-add_test(NAME ${TEST_TARGET_NAME}
-         COMMAND ${TEST_TARGET_NAME} -r junit)      
+add_test(NAME _test
+        COMMAND _test -r junit)

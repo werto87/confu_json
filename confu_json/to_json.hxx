@@ -7,8 +7,8 @@
 #ifndef A2E0641F_EBD5_4C94_9A72_19B4473D5677
 #define A2E0641F_EBD5_4C94_9A72_19B4473D5677
 
-#include "confu_json/concept.hxx"
-#include "confu_json/util.hxx"
+#include "concept.hxx"
+#include "util.hxx"
 #include <boost/fusion/adapted/struct/adapt_struct.hpp>
 #include <boost/fusion/adapted/struct/define_struct.hpp>
 #include <boost/fusion/algorithm/iteration/for_each.hpp>
@@ -22,7 +22,7 @@
 #include <boost/fusion/include/vector.hpp>
 #include <boost/mpl/range_c.hpp>
 #include <boost/mpl/size.hpp>
-#include <magic_enum.hpp>
+#include <magic_enum/magic_enum.hpp>
 
 namespace confu_json
 {
