@@ -121,12 +121,17 @@ struct NestedPairOptionalVector
   std::vector<std::pair<shared_class::Nested, boost::optional<shared_class::Nested>>> nestedPairOptionalVector{};
 };
 }
+// cppcheck-suppress unknownMacro
 BOOST_FUSION_ADAPT_STRUCT (shared_class::NestedPairOptionalVector, nestedPairOptionalVector)
-
+// cppcheck-suppress unknownMacro
 BOOST_FUSION_DEFINE_STRUCT ((shared_class), CreateAccount, (std::string, accountName) (std::string, password))
+// cppcheck-suppress unknownMacro
 BOOST_FUSION_DEFINE_STRUCT ((shared_class), UserInGameLobby, (std::string, accountName))
+// cppcheck-suppress unknownMacro
 BOOST_FUSION_DEFINE_STRUCT ((shared_class), UsersInGameLobby, (std::string, name) (std::vector<shared_class::UserInGameLobby>, users) (size_t, maxUserSize))
+
 typedef std::vector<std::pair<std::string, long long int>> UserTimeMilliseconds;
+// cppcheck-suppress unknownMacro
 BOOST_FUSION_DEFINE_STRUCT ((shared_class), DurakTimers, (UserTimeMilliseconds, runningTimeUserTimePointMilliseconds))
 
 namespace shared_class
@@ -138,7 +143,10 @@ struct OptionalVector
   boost::optional<std::vector<Nested>> optionalVectorNested{};
 };
 }
+// cppcheck-suppress unknownMacro
 BOOST_FUSION_ADAPT_STRUCT (shared_class::OptionalVector, optionalVectorString , optionalVectorInt, optionalVectorNested)
+// cppcheck-suppress unknownMacro
 BOOST_FUSION_DEFINE_STRUCT ((shared_class), VectorOfVector, (std::vector<std::vector<int>>, vectorOfVector))
+// cppcheck-suppress unknownMacro
 BOOST_FUSION_DEFINE_STRUCT ((shared_class), OptionalVectorOfVector, (boost::optional<std::vector<std::vector<int>>>, optionalVectorOfVector))
 #endif /* FE334B5B_FA67_454D_A6F5_A1CBF7D02BB7 */

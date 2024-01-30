@@ -20,6 +20,7 @@
 #include <boost/fusion/include/vector.hpp>
 #include <boost/mpl/range_c.hpp>
 #include <boost/mpl/size.hpp>
+#include <boost/numeric/conversion/cast.hpp>
 #include <magic_enum/magic_enum.hpp>
 namespace confu_json
 {
@@ -67,7 +68,7 @@ handleArray (T &t, U &_value)
                     }
                   else if constexpr (std::is_signed<optionalType>::value)
                     {
-                      t.push_back (element.as_int64 ());
+                      t.push_back (boost::numeric_cast<optionalType> (element.as_int64 ()));
                     }
                   else if constexpr (std::is_unsigned<optionalType>::value)
                     {
@@ -309,7 +310,7 @@ to_object (boost::json::value const &_value)
       }
     else if constexpr (std::is_signed<currentType>::value || std::is_unsigned<currentType>::value)
       {
-        member = jsonDataForMember.as_int64 ();
+        member = boost::numeric_cast<currentType>(jsonDataForMember.as_int64 ());
       }
     else if constexpr (std::is_unsigned<currentType>::value)
       {

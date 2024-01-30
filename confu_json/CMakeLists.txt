@@ -3,8 +3,37 @@
 ##
 ## Distributed under the Boost Software License, Version 1.0.
 ## (See accompanying file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
-##
+
+
 add_library(confu_json INTERFACE)
+
+
+add_library(myproject::confu_json ALIAS confu_json)
+
+find_package(magic_enum)
+find_package(Boost)
+
+# Get the include directories for the target.
+
+
+# Construct the compiler string for the include directories.
+
+
+target_link_libraries(confu_json INTERFACE
+        magic_enum::magic_enum
+        boost::boost
+        )
+
+target_include_directories(confu_json INTERFACE $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+        $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>)
+
+target_compile_features(confu_json INTERFACE cxx_std_20)
+
+set_target_properties(
+        confu_json
+        PROPERTIES VERSION ${PROJECT_VERSION}
+        CXX_VISIBILITY_PRESET hidden
+        VISIBILITY_INLINES_HIDDEN YES)
 
 install(FILES
         concept.hxx
@@ -13,22 +42,5 @@ install(FILES
         to_object.hxx
         util.hxx
         DESTINATION include/confu_json
-        )
-
-find_package(Boost)
-find_package(magic_enum)
-target_link_libraries(confu_json INTERFACE
-        ${PROJECT_WARNINGS}
-        ${PROJECT_OPTIONS}
-        boost::boost
-        magic_enum::magic_enum
-        )
-
-# state that anybody linking to us needs to include the current source dir
-# to find MathFunctions.h, while we don't.
-target_include_directories(confu_json
-        INTERFACE
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-        $<INSTALL_INTERFACE:include>
         )
 install(TARGETS confu_json DESTINATION lib)

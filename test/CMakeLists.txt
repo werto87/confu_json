@@ -1,14 +1,13 @@
 add_executable(_test
-        main.cxx
-        jsonToUserDefined.cxx
-        userDefinedToJson.cxx
-        constant.hxx
         combineToJsonAndToObject.cxx
+        main.cxx
         )
 find_package(Catch2)
 target_link_libraries(_test
+        myproject_options
+        myproject_warnings
         confu_json
-        Catch2::Catch2
+        Catch2::Catch2WithMain
         )
 target_include_directories(_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_SOURCE_DIR})
 

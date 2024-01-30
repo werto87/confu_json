@@ -71,6 +71,7 @@ macro(myproject_enable_clang_tidy target WARNINGS_AS_ERRORS)
     # construct the clang-tidy command line
     set(CLANG_TIDY_OPTIONS
         ${CLANGTIDY}
+        -extra-arg=-DCLANG_TIDY
         -extra-arg=-Wno-unknown-warning-option
         -extra-arg=-Wno-ignored-optimization-argument
         -extra-arg=-Wno-unused-command-line-argument

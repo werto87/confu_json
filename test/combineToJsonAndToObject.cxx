@@ -5,6 +5,7 @@
 using namespace boost::json;
 using namespace confu_json;
 
+
 TEST_CASE ("Nested combination", "[combination]")
 {
   auto nested = shared_class::Nested{};
@@ -271,7 +272,6 @@ TEST_CASE ("UsersInGameLobby combination", "[test]")
   error_code ec{};
   auto value = read_json (jsonAsText, ec);
   auto usersInGameLobby = to_object<shared_class::UsersInGameLobby> (value);
-  std::cout << ec.message () << std::endl;
   REQUIRE (usersInGameLobby.maxUserSize == 2);
 }
 
@@ -287,7 +287,6 @@ TEST_CASE ("DurakTimers", "[to_json]")
 TEST_CASE ("OptionalVectorHasValue", "[combine]")
 {
   auto optionalVector = shared_class::OptionalVector{ { { "huhu" } }, { { 42 } }, { { shared_class::Nested{} } } };
-  std::cout << to_json (optionalVector);
   auto optionalVectorTest = to_object<shared_class::OptionalVector> (to_json (optionalVector));
   REQUIRE (optionalVectorTest.optionalVectorInt.has_value ());
   REQUIRE (optionalVectorTest.optionalVectorString.has_value ());
@@ -300,7 +299,6 @@ TEST_CASE ("OptionalVectorHasValue", "[combine]")
 TEST_CASE ("OptionalVector", "[combine]")
 {
   auto optionalVector = shared_class::OptionalVector{};
-  std::cout << to_json (optionalVector);
   auto optionalVectorTest = to_object<shared_class::OptionalVector> (to_json (optionalVector));
   REQUIRE_FALSE (optionalVectorTest.optionalVectorInt.has_value ());
   REQUIRE_FALSE (optionalVectorTest.optionalVectorString.has_value ());
@@ -312,7 +310,6 @@ TEST_CASE ("VectorOfVector", "[combine]")
 {
   auto vectorOfVector = shared_class::VectorOfVector{};
   vectorOfVector.vectorOfVector={{42},{42 ,12}};
-  std::cout << to_json (vectorOfVector);
   auto vectorOfVectorTest = to_object<shared_class::VectorOfVector> (to_json (vectorOfVector));
   REQUIRE(vectorOfVector.vectorOfVector == vectorOfVectorTest.vectorOfVector);
 }
@@ -321,7 +318,6 @@ TEST_CASE ("VectorOfVector", "[combine]")
 TEST_CASE ("OptionalVectorOfVector no value", "[combine]")
 {
   auto optionalVectorOfVector = shared_class::OptionalVectorOfVector{};
-  std::cout << to_json (optionalVectorOfVector);
   auto optionalVectorOfVectorTest = to_object<shared_class::OptionalVectorOfVector> (to_json (optionalVectorOfVector));
   REQUIRE_FALSE (optionalVectorOfVectorTest.optionalVectorOfVector.has_value ());
 }
@@ -332,7 +328,6 @@ TEST_CASE ("OptionalVectorOfVector value", "[combine]")
   optionalVectorOfVector.optionalVectorOfVector=boost::optional<std::vector<std::vector<int>>>{ {} };
   optionalVectorOfVector.optionalVectorOfVector->push_back ({42,42});
   optionalVectorOfVector.optionalVectorOfVector->push_back ({32,12});
-  std::cout << to_json (optionalVectorOfVector);
   auto optionalVectorOfVectorTest = to_object<shared_class::OptionalVectorOfVector> (to_json (optionalVectorOfVector));
   REQUIRE (optionalVectorOfVectorTest.optionalVectorOfVector.has_value ());
   REQUIRE (optionalVectorOfVectorTest.optionalVectorOfVector.value() == optionalVectorOfVectorTest.optionalVectorOfVector.value());
