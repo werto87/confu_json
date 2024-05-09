@@ -37,7 +37,7 @@ template <typename T>
 constexpr bool
 is_std_or_boost_optional ()
 {
-  return is_std_optional<T>::value or is_boost_optional<T>::value;
+  return is_std_optional<T>::value || is_boost_optional<T>::value;
 }
 template <typename S, typename T> struct is_std_pair<std::pair<S, T>> : public std::true_type
 {
