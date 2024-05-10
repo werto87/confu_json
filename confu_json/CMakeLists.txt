@@ -29,12 +29,6 @@ target_include_directories(confu_json INTERFACE $<BUILD_INTERFACE:${PROJECT_SOUR
 
 target_compile_features(confu_json INTERFACE cxx_std_20)
 
-set_target_properties(
-        confu_json
-        PROPERTIES VERSION ${PROJECT_VERSION}
-        CXX_VISIBILITY_PRESET hidden
-        VISIBILITY_INLINES_HIDDEN YES)
-
 install(FILES
         concept.hxx
         confu_json.hxx
