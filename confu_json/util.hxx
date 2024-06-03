@@ -31,7 +31,7 @@ type_name ()
   std::string_view name = __PRETTY_FUNCTION__;
   auto fullName = std::vector<std::string>{};
 #ifndef CLANG_TIDY
-  //clang-tidy false positive https://bugs.llvm.org/show_bug.cgi?id=41141
+  // clang-tidy false positive https://bugs.llvm.org/show_bug.cgi?id=41141
   boost::algorithm::split (fullName, name, boost::is_any_of ("::"));
 #endif
   boost::erase_all (fullName.back (), "]");
@@ -42,7 +42,7 @@ type_name ()
 }
 
 inline boost::json::value
-read_json (std::stringstream &is, boost::json::error_code &ec)
+read_json (std::stringstream &is, boost::system::error_code &ec)
 {
   // TODO think about unsigned support how to save a number in a json so we can say its an unsigned for example we have 2 in a json is this unsigned or not?
   boost::json::stream_parser p;
@@ -58,7 +58,7 @@ read_json (std::stringstream &is, boost::json::error_code &ec)
 }
 
 inline boost::json::value
-read_json (std::string const &jsonAsString, boost::json::error_code &ec)
+read_json (std::string const &jsonAsString, boost::system::error_code &ec)
 {
   std::stringstream is{};
   is << jsonAsString;

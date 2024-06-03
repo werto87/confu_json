@@ -5,7 +5,7 @@ add_executable(_test
 find_package(Catch2)
 find_package(login_matchmaking_game_shared)
 find_package(modern_durak_game_shared)
-
+find_package(durak)
 
 target_link_libraries(_test
         myproject_options
@@ -14,6 +14,7 @@ target_link_libraries(_test
         Catch2::Catch2WithMain
         login_matchmaking_game_shared::login_matchmaking_game_shared
         modern_durak_game_shared::modern_durak_game_shared
+        durak::durak
         )
 target_include_directories(_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_SOURCE_DIR})
 
