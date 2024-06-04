@@ -51,6 +51,12 @@ struct WithEnumPairVector
 
 BOOST_FUSION_ADAPT_STRUCT (shared_class::WithEnumPairVector, withEnumPairVector)
 
+struct UniquePtrWithVector
+{
+  std::unique_ptr<std::vector<int>> uniquePtrVectorInt{};
+};
+BOOST_FUSION_ADAPT_STRUCT (UniquePtrWithVector, uniquePtrVectorInt)
+
 namespace shared_class
 {
 struct WithEnumPairOptionalVector
@@ -144,7 +150,7 @@ struct OptionalVector
 };
 }
 // cppcheck-suppress unknownMacro
-BOOST_FUSION_ADAPT_STRUCT (shared_class::OptionalVector, optionalVectorString , optionalVectorInt, optionalVectorNested)
+BOOST_FUSION_ADAPT_STRUCT (shared_class::OptionalVector, optionalVectorString, optionalVectorInt, optionalVectorNested)
 // cppcheck-suppress unknownMacro
 BOOST_FUSION_DEFINE_STRUCT ((shared_class), VectorOfVector, (std::vector<std::vector<int>>, vectorOfVector))
 // cppcheck-suppress unknownMacro

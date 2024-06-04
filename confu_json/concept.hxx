@@ -17,6 +17,25 @@
 namespace confu_json
 {
 
+// is_shared_ptr copied from here https://stackoverflow.com/questions/65752626/concept-for-smart-pointers
+template <typename T> struct is_shared_ptr : std::false_type
+{
+};
+template <typename T> struct is_shared_ptr<std::shared_ptr<T>> : std::true_type
+{
+};
+template <typename T>
+concept IsSharedPtr = is_shared_ptr<T>::value;
+
+template <typename T> struct is_unique_ptr : std::false_type
+{
+};
+template <typename T> struct is_unique_ptr<std::unique_ptr<T>> : std::true_type
+{
+};
+template <typename T>
+concept IsUniquePtr = is_unique_ptr<T>::value;
+
 template <typename T> struct is_std_string : std::bool_constant<std::is_same<std::decay_t<T>, std::string>::value>
 {
 };
@@ -50,6 +69,6 @@ template <typename> struct is_std_vector : std::false_type
 template <typename T, typename A> struct is_std_vector<std::vector<T, A>> : std::true_type
 {
 };
-
+struct NotDefinedType; // used as default value if template is not specified
 }
 #endif /* A0BAA2CA_6E62_4337_B0BE_F4AFE5469841 */

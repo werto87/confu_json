@@ -1,7 +1,15 @@
 #include "confu_json/to_json.hxx"
 #include "confu_json/to_object.hxx"
 #include "test/constant.hxx"
+#include <boost/fusion/adapted/struct/adapt_struct.hpp>
+#include <boost/fusion/adapted/struct/detail/adapt_auto.hpp>
+#include <boost/mpl/assert.hpp>
+#include <boost/mpl/map.hpp>
 #include <catch2/catch.hpp>
+#include <login_matchmaking_game_shared/gameOptionBase.hxx>
+#include <login_matchmaking_game_shared/matchmakingGameSerialization.hxx>
+#include <memory>
+#include <vector>
 using namespace boost::json;
 using namespace confu_json;
 
@@ -328,4 +336,37 @@ TEST_CASE ("OptionalVectorOfVector value", "[combine]")
   auto optionalVectorOfVectorTest = to_object<shared_class::OptionalVectorOfVector> (to_json (optionalVectorOfVector));
   REQUIRE (optionalVectorOfVectorTest.optionalVectorOfVector.has_value ());
   REQUIRE (optionalVectorOfVectorTest.optionalVectorOfVector.value () == optionalVectorOfVectorTest.optionalVectorOfVector.value ());
+}
+
+TEST_CASE ("unique null", "[combine]")
+{
+  auto original = matchmaking_game::StartGame{};
+  REQUIRE (original.gameOption.get () == to_object<matchmaking_game::StartGame> (to_json (original)).gameOption.get ());
+}
+
+struct GameOption : public user_matchmaking_game::GameOptionBase
+{
+  int i{};
+};
+BOOST_FUSION_ADAPT_STRUCT (GameOption, i)
+typedef boost::mpl::map<boost::mpl::pair<user_matchmaking_game::GameOptionBase, GameOption>> m;
+
+TEST_CASE ("unique has value", "[combine]")
+{
+  auto original = matchmaking_game::StartGame{};
+  original.gameOption = std::make_unique<GameOption> ();
+  dynamic_cast<GameOption *> (original.gameOption.get ())->i = 42;
+  auto test = to_object<matchmaking_game::StartGame, m> (to_json<m> (original));
+  REQUIRE (original.gameOption.get () != test.gameOption.get ());
+  REQUIRE (dynamic_cast<GameOption *> (original.gameOption.get ())->i == dynamic_cast<GameOption *> (test.gameOption.get ())->i);
+}
+
+TEST_CASE ("unique has vector int", "[combine]")
+{
+  auto original = matchmaking_game::StartGame{};
+  original.gameOption = std::make_unique<GameOption> ();
+  dynamic_cast<GameOption *> (original.gameOption.get ())->i = 42;
+  auto test = to_object<matchmaking_game::StartGame, m> (to_json<m> (original));
+  REQUIRE (original.gameOption.get () != test.gameOption.get ());
+  REQUIRE (dynamic_cast<GameOption *> (original.gameOption.get ())->i == dynamic_cast<GameOption *> (test.gameOption.get ())->i);
 }

@@ -10,6 +10,8 @@ add_library(confu_json INTERFACE)
 
 add_library(myproject::confu_json ALIAS confu_json)
 
+
+find_package(di)
 find_package(magic_enum)
 find_package(Boost)
 
@@ -22,6 +24,7 @@ find_package(Boost)
 target_link_libraries(confu_json INTERFACE
         magic_enum::magic_enum
         boost::boost
+        di::di
         )
 
 target_include_directories(confu_json INTERFACE $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>

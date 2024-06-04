@@ -7,6 +7,7 @@
 #ifndef F5E56D46_F48D_4E89_B6F1_5D734D665E8D
 #define F5E56D46_F48D_4E89_B6F1_5D734D665E8D
 #include "concept.hxx"
+#include "confu_json/to_json.hxx"
 #include "util.hxx"
 #include <boost/fusion/adapted/struct/adapt_struct.hpp>
 #include <boost/fusion/adapted/struct/define_struct.hpp>
@@ -18,6 +19,7 @@
 #include <boost/fusion/include/for_each.hpp>
 #include <boost/fusion/include/mpl.hpp>
 #include <boost/fusion/include/vector.hpp>
+#include <boost/mpl/has_key_fwd.hpp>
 #include <boost/mpl/range_c.hpp>
 #include <boost/mpl/size.hpp>
 #include <boost/numeric/conversion/cast.hpp>
@@ -25,11 +27,11 @@
 namespace confu_json
 {
 
-template <typename T> T to_object (boost::json::value const &_value); // pre declare
+template <typename T, typename BaseToDerivedMapping = NotDefinedType> T to_object (boost::json::value const &_value);
 
-template <typename T, typename U> void handleOptional (T &t, U &_value, std::string const &name);
+template <typename BaseToDerivedMapping = NotDefinedType, typename T, typename U> void handleOptional (T &t, U &_value, std::string const &name);
 
-template <typename T, typename U>
+template <typename BaseToDerivedMapping = NotDefinedType, typename T, typename U>
 void
 handleArray (T &t, U &_value)
 {
@@ -47,7 +49,7 @@ handleArray (T &t, U &_value)
               if (not element.is_null ())
                 {
                   auto temp = someTypeOtherType{};
-                  handleOptional (temp, element, std::string{ type_name<someTypeOtherType> () });
+                  handleOptional<BaseToDerivedMapping> (temp, element, std::string{ type_name<someTypeOtherType> () });
                   t.push_back (temp);
                 }
               else
@@ -84,7 +86,6 @@ handleArray (T &t, U &_value)
                     }
                   else if constexpr (std::is_enum_v<optionalType>)
                     {
-
                       auto result = std::string{ type_name<optionalType> () };
                       auto enumOptional = magic_enum::enum_cast<optionalType> (element.as_object ().at (result).as_string ().c_str ());
                       if (enumOptional)
@@ -115,7 +116,7 @@ handleArray (T &t, U &_value)
             {
               if (not element.at (0).is_null ())
                 {
-                  handleOptional (result.first, element.at (0), std::string{ type_name<firstType> () });
+                  handleOptional<BaseToDerivedMapping> (result.first, element.at (0), std::string{ type_name<firstType> () });
                 }
             }
           else
@@ -147,7 +148,7 @@ handleArray (T &t, U &_value)
                 }
               else
                 {
-                  result.first = to_object<firstType> (element.at (0).at (type_name<firstType> ()));
+                  result.first = to_object<firstType, BaseToDerivedMapping> (element.at (0).at (type_name<firstType> ()));
                 }
             }
 
@@ -155,7 +156,7 @@ handleArray (T &t, U &_value)
             {
               if (not element.at (1).is_null ())
                 {
-                  handleOptional (result.second, element.at (1), std::string{ type_name<secondType> () });
+                  handleOptional<BaseToDerivedMapping> (result.second, element.at (1), std::string{ type_name<secondType> () });
                 }
             }
           else
@@ -187,7 +188,7 @@ handleArray (T &t, U &_value)
                 }
               else
                 {
-                  result.second = to_object<secondType> (element.at (1).at (type_name<secondType> ()));
+                  result.second = to_object<secondType, BaseToDerivedMapping> (element.at (1).at (type_name<secondType> ()));
                 }
             }
           t.push_back (result);
@@ -198,7 +199,7 @@ handleArray (T &t, U &_value)
       for (value const &element : _value.as_array ())
         {
           auto tmp = someTypeOtherType{};
-          handleArray (tmp, element);
+          handleArray<BaseToDerivedMapping> (tmp, element);
           t.push_back (tmp);
         }
     }
@@ -208,7 +209,7 @@ handleArray (T &t, U &_value)
         {
           for (value const &element : _value.as_array ())
             {
-              t.push_back (to_object<someTypeOtherType> (element.as_object ().at (type_name<someTypeOtherType> ())));
+              t.push_back (to_object<someTypeOtherType, BaseToDerivedMapping> (element.as_object ().at (type_name<someTypeOtherType> ())));
             }
         }
       else if constexpr (std::is_enum_v<someTypeOtherType>)
@@ -234,7 +235,7 @@ handleArray (T &t, U &_value)
     }
 }
 
-template <typename T, typename U>
+template <typename BaseToDerivedMapping, typename T, typename U>
 void
 handleOptional (T &t, U &_value, std::string const &name)
 {
@@ -258,7 +259,7 @@ handleOptional (T &t, U &_value, std::string const &name)
     {
       if (not jsonDataForMember.is_null ())
         {
-          handleOptional (t, jsonDataForMember, name);
+          handleOptional<BaseToDerivedMapping> (t, jsonDataForMember, name);
         }
     }
   else if constexpr (is_std_string<optionalType>::value && not is_std_vector<optionalType>::value)
@@ -283,17 +284,106 @@ handleOptional (T &t, U &_value, std::string const &name)
     }
   else if constexpr (boost::fusion::traits::is_sequence<optionalType>::value)
     {
-      t = to_object<optionalType> (jsonDataForMember.as_object ());
+      // TODO make use of dependency injection
+      t = to_object<optionalType, BaseToDerivedMapping> (jsonDataForMember.as_object ());
     }
   else if constexpr (is_std_vector<optionalType>::value)
     {
       auto tmp = optionalType{};
-      handleArray (tmp, jsonDataForMember);
+      handleArray<BaseToDerivedMapping> (tmp, jsonDataForMember);
       t = tmp;
     }
 }
 
-template <typename T>
+template <typename BaseToDerivedMapping = NotDefinedType, typename T, typename U>
+void
+handleUniquePtr (T &t, U &_value, std::string const &name)
+{
+  using namespace boost::json;
+  auto &jsonDataForMember = _value.as_object ().at (name);
+  using uniquePtrType = typename std::decay<decltype (*t.get ())>::type;
+  if constexpr (std::is_same<bool, uniquePtrType>::value)
+    {
+      t = jsonDataForMember.as_bool ();
+    }
+  else if constexpr (std::is_signed<uniquePtrType>::value)
+    {
+      t = jsonDataForMember.as_int64 ();
+    }
+  else if constexpr (std::is_unsigned<uniquePtrType>::value)
+    {
+      t = jsonDataForMember.as_uint64 ();
+    }
+  else if constexpr (is_std_or_boost_optional<uniquePtrType> ())
+    {
+      if (not jsonDataForMember.is_null ())
+        {
+          handleOptional<BaseToDerivedMapping> (t, jsonDataForMember, name);
+        }
+    }
+  else if constexpr (is_unique_ptr<uniquePtrType> ())
+    {
+      if (not jsonDataForMember.is_null ())
+        {
+          handleUniquePtr<BaseToDerivedMapping> (t, jsonDataForMember, name);
+        }
+    }
+  else if constexpr (is_std_string<uniquePtrType>::value && not is_std_vector<uniquePtrType>::value)
+    {
+      if (jsonDataForMember.kind () == kind::string) t = jsonDataForMember.as_string ().c_str ();
+    }
+  else if constexpr (std::is_enum_v<uniquePtrType>)
+    {
+      if (jsonDataForMember.kind () == kind::string)
+        {
+          auto result = std::string{ jsonDataForMember.as_string ().c_str () };
+          auto enumOptional = magic_enum::enum_cast<uniquePtrType> (result);
+          if (enumOptional)
+            {
+              t = enumOptional.value ();
+            }
+          else
+            {
+              std::cout << std::string{ type_name<uniquePtrType> () } << ": not supported enum value: " << jsonDataForMember.as_string ().c_str () << std::endl;
+            }
+        }
+    }
+  else if constexpr (boost::fusion::traits::is_sequence<uniquePtrType>::value)
+    {
+      if constexpr (std::is_same_v<BaseToDerivedMapping, NotDefinedType>)
+        {
+          t = std::make_unique<uniquePtrType> (to_object<uniquePtrType, BaseToDerivedMapping> (jsonDataForMember.as_object ()));
+        }
+      else
+        {
+          if constexpr (boost::mpl::has_key<BaseToDerivedMapping, uniquePtrType>::value)
+            {
+              using Derived = boost::mpl::at<BaseToDerivedMapping, uniquePtrType>::type;
+              t = std::make_unique<Derived> (to_object<Derived, BaseToDerivedMapping> (jsonDataForMember.as_object ()));
+            }
+          else
+            {
+              t = std::make_unique<uniquePtrType> (to_object<uniquePtrType, BaseToDerivedMapping> (jsonDataForMember.as_object ()));
+            }
+        }
+    }
+  else if constexpr (is_std_vector<uniquePtrType>::value)
+    {
+      auto tmp = uniquePtrType{};
+      handleArray<BaseToDerivedMapping> (tmp, jsonDataForMember);
+      t = tmp;
+    }
+}
+
+/**
+ * @brief creates the Type T from a json object
+ *
+ * @tparam T type to create
+ * @tparam BaseToDerivedMapping optional template argument (function is forward declared) used to inject an implementation for example for std::unique_ptr<Base>
+ * @param _value
+ * @return T
+ */
+template <typename T, typename BaseToDerivedMapping>
 T
 to_object (boost::json::value const &_value)
 {
@@ -316,7 +406,14 @@ to_object (boost::json::value const &_value)
       {
         if (not jsonDataForMember.is_null ())
           {
-            handleOptional (member, _value, memberName);
+            handleOptional<BaseToDerivedMapping> (member, _value, memberName);
+          }
+      }
+    else if constexpr (is_unique_ptr<currentType>::value)
+      {
+        if (not jsonDataForMember.is_null ())
+          {
+            handleUniquePtr<BaseToDerivedMapping> (member, _value, memberName);
           }
       }
     else if constexpr (is_std_string<currentType>::value)
@@ -327,7 +424,7 @@ to_object (boost::json::value const &_value)
       {
         if constexpr (is_std_vector<currentType>::value)
           {
-            handleArray (member, jsonDataForMember);
+            handleArray<BaseToDerivedMapping> (member, jsonDataForMember);
           }
         else if constexpr (is_std_pair<currentType>::value)
           {
@@ -338,7 +435,7 @@ to_object (boost::json::value const &_value)
               {
                 if (not jsonDataForMember.at (0).is_null ())
                   {
-                    handleOptional (member.first, jsonDataForMember.at (0), std::string{ type_name<firstType> () });
+                    handleOptional<BaseToDerivedMapping> (member.first, jsonDataForMember.at (0), std::string{ type_name<firstType> () });
                   }
               }
             else if constexpr (std::is_enum_v<firstType>)
@@ -356,14 +453,13 @@ to_object (boost::json::value const &_value)
               }
             else
               {
-                member.first = to_object<firstType> (jsonDataForMember.at (0).at (type_name<firstType> ()));
+                member.first = to_object<firstType, BaseToDerivedMapping> (jsonDataForMember.at (0).at (type_name<firstType> ()));
               }
-
             if constexpr (is_std_or_boost_optional<secondType> ())
               {
                 if (not jsonDataForMember.at (1).is_null ())
                   {
-                    handleOptional (member.second, jsonDataForMember.at (1), std::string{ type_name<secondType> () });
+                    handleOptional<BaseToDerivedMapping> (member.second, jsonDataForMember.at (1), std::string{ type_name<secondType> () });
                   }
               }
             else if constexpr (std::is_enum_v<secondType>)
@@ -381,7 +477,7 @@ to_object (boost::json::value const &_value)
               }
             else
               {
-                member.second = to_object<secondType> (jsonDataForMember.at (1).at (type_name<secondType> ()));
+                member.second = to_object<secondType, BaseToDerivedMapping> (jsonDataForMember.at (1).at (type_name<secondType> ()));
               }
           }
         else if constexpr (std::is_enum_v<currentType>)
@@ -397,9 +493,10 @@ to_object (boost::json::value const &_value)
                 std::cout << type_name<currentType> () << ": not supported enum value: " << jsonDataForMember.as_string ().c_str () << std::endl;
               }
           }
+
         else
           {
-            member = to_object<currentType> (jsonDataForMember.as_object ());
+            member = to_object<currentType, BaseToDerivedMapping> (jsonDataForMember.as_object ());
           }
       }
   });

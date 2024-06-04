@@ -13,15 +13,6 @@ using namespace confu_json;
 
 TEST_CASE ("playground", "[playground]")
 {
-
-  //  boost::hana::for_each (matchmaking_game::matchmakingGame, [&] (const auto &x) {
-  //        boost::system::error_code ec{};
-  //        auto cards=durak::GameOption{};
-  auto card = durak::Card{};
-  //  card.value
-
-  to_object<durak::Card> (to_json (card));
-  //        if (ec) std::cout << "read_json error: " << ec.message () << std::endl;
-  //        return;
-  //  });
+  //
+  //
 }

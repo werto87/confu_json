@@ -26,13 +26,12 @@
 
 namespace confu_json
 {
-template <class T> void handlePair (boost::json::object &result, T const &member, std::string const &memberName);
-template <class T> bool handleOptional (boost::json::object &result, T const &t, std::string const &memberName);
-template <class T> boost::json::object to_json (T const &t);
+template <typename BaseToDerivedMapping = NotDefinedType, class T> void handlePair (boost::json::object &result, T const &member, std::string const &memberName);
+template <typename BaseToDerivedMapping = NotDefinedType, class T> bool handleOptional (boost::json::object &result, T const &t, std::string const &memberName);
+template <typename BaseToDerivedMapping = NotDefinedType, class T> bool handleUniquePtr (boost::json::object &result, T const &t, std::string const &memberName);
+template <typename BaseToDerivedMapping = NotDefinedType, class T> boost::json::object to_json (T const &t);
 
-template <typename> struct Debug;
-
-template <class T>
+template <typename BaseToDerivedMapping = NotDefinedType, class T>
 void
 handleArray (boost::json::array &result, T const &t)
 {
@@ -46,7 +45,7 @@ handleArray (boost::json::array &result, T const &t)
           using optionalType = std::decay_t<decltype (element.value ())>;
           if constexpr (boost::fusion::traits::is_sequence<optionalType>::value)
             {
-              if (handleOptional (tmp, element, std::string{ type_name<elementType> () }))
+              if (handleOptional<BaseToDerivedMapping> (tmp, element, std::string{ type_name<elementType> () }))
                 {
                   result.push_back (tmp);
                 }
@@ -76,21 +75,56 @@ handleArray (boost::json::array &result, T const &t)
                 }
             }
         }
+      else if constexpr (is_unique_ptr<elementType>::value)
+        {
+          using uniquePtrType = std::decay_t<decltype (*element.get ())>;
+          if constexpr (boost::fusion::traits::is_sequence<uniquePtrType>::value)
+            {
+              if (handleUniquePtr<BaseToDerivedMapping> (tmp, element, std::string{ type_name<elementType> () }))
+                {
+                  result.push_back (tmp);
+                }
+              else
+                {
+                  result.push_back (nullptr);
+                }
+            }
+          else
+            {
+              if (element.has_value ())
+                {
+                  if constexpr (std::is_enum_v<uniquePtrType>)
+                    {
+                      tmp[std::string{ type_name<uniquePtrType> () }] = std::string{ magic_enum::enum_name (element.value ()) };
+                      std::cout << tmp << std::endl;
+                      result.emplace_back (tmp);
+                    }
+                  else
+                    {
+                      result.emplace_back (element.value ());
+                    }
+                }
+              else
+                {
+                  result.push_back (nullptr);
+                }
+            }
+        }
       else if constexpr (is_std_pair<elementType>::value)
         {
-          handlePair (tmp, element, std::string{ type_name<elementType> () });
+          handlePair<BaseToDerivedMapping> (tmp, element, std::string{ type_name<elementType> () });
           result.push_back (tmp.at (std::string{ type_name<elementType> () }).as_array ());
         }
       else if constexpr (boost::fusion::traits::is_sequence<elementType>::value)
         {
-          tmp[std::string{ type_name<elementType> () }] = to_json (element);
+          tmp[std::string{ type_name<elementType> () }] = to_json<BaseToDerivedMapping> (element);
           result.push_back (tmp);
         }
       else if constexpr (is_std_vector<elementType>::value)
         {
           using namespace boost::json;
           array tmpArray;
-          handleArray (tmpArray, element);
+          handleArray<BaseToDerivedMapping> (tmpArray, element);
           result.push_back (tmpArray);
         }
       else
@@ -108,7 +142,7 @@ handleArray (boost::json::array &result, T const &t)
     }
 }
 
-template <class T>
+template <typename BaseToDerivedMapping, class T>
 bool
 handleOptional (boost::json::object &result, T const &t, std::string const &memberName)
 {
@@ -117,7 +151,7 @@ handleOptional (boost::json::object &result, T const &t, std::string const &memb
     {
       if (t.has_value ())
         {
-          result[memberName] = to_json (t.value ());
+          result[memberName] = to_json<BaseToDerivedMapping> (t.value ());
           return true;
         }
       else
@@ -141,7 +175,7 @@ handleOptional (boost::json::object &result, T const &t, std::string const &memb
                   // handle optional case when vector is optional
                   using namespace boost::json;
                   array tmp;
-                  handleArray (tmp, t.value ());
+                  handleArray<BaseToDerivedMapping> (tmp, t.value ());
                   result[memberName] = tmp;
                 }
               else
@@ -159,7 +193,75 @@ handleOptional (boost::json::object &result, T const &t, std::string const &memb
     }
 }
 
-template <class T>
+template <typename BaseToDerivedMapping, class T>
+bool
+handleUniquePtr (boost::json::object &result, T const &t, std::string const &memberName)
+{
+  using uniquePtrType = typename std::decay_t<decltype (*t.get ())>;
+  if constexpr (boost::fusion::traits::is_sequence<uniquePtrType>::value)
+    {
+      if (t)
+        {
+          if constexpr (std::is_same_v<BaseToDerivedMapping, NotDefinedType>)
+            {
+              result[memberName] = to_json<BaseToDerivedMapping> (*t.get ());
+              return true;
+            }
+          else
+            {
+              if constexpr (boost::mpl::has_key<BaseToDerivedMapping, uniquePtrType>::value)
+                {
+                  using Derived = boost::mpl::at<BaseToDerivedMapping, uniquePtrType>::type;
+                  result[memberName] = to_json<BaseToDerivedMapping> (*dynamic_cast<Derived *> (t.get ()));
+                  return true;
+                }
+              else
+                {
+                  result[memberName] = to_json<BaseToDerivedMapping> (*t.get ());
+                  return true;
+                }
+            }
+        }
+      else
+        {
+          result[memberName] = nullptr;
+          return false;
+        }
+    }
+  else
+    {
+      if (t)
+        {
+          if constexpr (std::is_enum_v<uniquePtrType>)
+            {
+              result[memberName] = std::string{ magic_enum::enum_name (t.value ()) };
+            }
+          else
+            {
+              if constexpr (is_std_vector<uniquePtrType>::value)
+                {
+                  // handle uniquePtr  when vector is in a uniquePtr
+                  using namespace boost::json;
+                  array tmp;
+                  handleArray<BaseToDerivedMapping> (tmp, t.value ());
+                  result[memberName] = tmp;
+                }
+              else
+                {
+                  result[memberName] = t.value ();
+                }
+            }
+          return true;
+        }
+      else
+        {
+          result[memberName] = nullptr;
+          return false;
+        }
+    }
+}
+
+template <typename BaseToDerivedMapping, class T>
 void
 handlePair (boost::json::object &result, T const &member, std::string const &memberName)
 {
@@ -172,7 +274,7 @@ handlePair (boost::json::object &result, T const &member, std::string const &mem
       if constexpr (boost::fusion::traits::is_sequence<pairTypeFirst>::value) // looks fishy how can the type be optional and fusion sequence
         {
           object wrapper;
-          if (handleOptional (wrapper, member.first, std::string{ type_name<pairTypeFirst> () }))
+          if (handleOptional<BaseToDerivedMapping> (wrapper, member.first, std::string{ type_name<pairTypeFirst> () }))
             {
               pairArray.emplace_back (wrapper);
             }
@@ -184,7 +286,7 @@ handlePair (boost::json::object &result, T const &member, std::string const &mem
       else
         {
           object wrapper;
-          if (handleOptional (wrapper, member.first, std::string{ type_name<pairTypeFirst> () }))
+          if (handleOptional<BaseToDerivedMapping> (wrapper, member.first, std::string{ type_name<pairTypeFirst> () }))
             {
               pairArray.emplace_back (wrapper);
             }
@@ -199,7 +301,7 @@ handlePair (boost::json::object &result, T const &member, std::string const &mem
       if constexpr (boost::fusion::traits::is_sequence<pairTypeFirst>::value)
         {
           object wrapper;
-          wrapper[std::string{ type_name<pairTypeFirst> () }] = to_json (member.first);
+          wrapper[std::string{ type_name<pairTypeFirst> () }] = to_json<BaseToDerivedMapping> (member.first);
           pairArray.emplace_back (wrapper);
         }
       else
@@ -221,7 +323,7 @@ handlePair (boost::json::object &result, T const &member, std::string const &mem
       if constexpr (boost::fusion::traits::is_sequence<pairTypeSecond>::value) // looks fishy how can the type be optional and fusion sequence
         {
           object wrapper;
-          if (handleOptional (wrapper, member.second, std::string{ type_name<pairTypeSecond> () }))
+          if (handleOptional<BaseToDerivedMapping> (wrapper, member.second, std::string{ type_name<pairTypeSecond> () }))
             {
               pairArray.emplace_back (wrapper);
             }
@@ -233,7 +335,7 @@ handlePair (boost::json::object &result, T const &member, std::string const &mem
       else
         {
           object wrapper;
-          if (handleOptional (wrapper, member.second, std::string{ type_name<pairTypeSecond> () }))
+          if (handleOptional<BaseToDerivedMapping> (wrapper, member.second, std::string{ type_name<pairTypeSecond> () }))
             {
               pairArray.emplace_back (wrapper);
             }
@@ -248,7 +350,7 @@ handlePair (boost::json::object &result, T const &member, std::string const &mem
       if constexpr (boost::fusion::traits::is_sequence<pairTypeSecond>::value)
         {
           object wrapper;
-          wrapper[std::string{ type_name<pairTypeSecond> () }] = to_json (member.second);
+          wrapper[std::string{ type_name<pairTypeSecond> () }] = to_json<BaseToDerivedMapping> (member.second);
           pairArray.emplace_back (wrapper);
         }
       else
@@ -268,7 +370,7 @@ handlePair (boost::json::object &result, T const &member, std::string const &mem
   result[memberName] = pairArray;
 }
 
-template <class T>
+template <typename BaseToDerivedMapping, class T>
 boost::json::object
 to_json (T const &t)
 {
@@ -280,7 +382,7 @@ to_json (T const &t)
     auto memberName = boost::fusion::extension::struct_member_name<T, index>::call ();
     if constexpr (is_std_or_boost_optional<currentType> ())
       {
-        handleOptional (obj, member, memberName);
+        handleOptional<BaseToDerivedMapping> (obj, member, memberName);
       }
     else if constexpr (std::is_enum_v<currentType>)
       {
@@ -289,16 +391,20 @@ to_json (T const &t)
     else if constexpr (is_std_vector<currentType>::value)
       {
         array result;
-        handleArray (result, member);
+        handleArray<BaseToDerivedMapping> (result, member);
         obj[memberName] = result;
       }
     else if constexpr (is_std_pair<currentType>::value)
       {
-        handlePair (obj, member, memberName);
+        handlePair<BaseToDerivedMapping> (obj, member, memberName);
       }
     else if constexpr (boost::fusion::traits::is_sequence<currentType>::value)
       {
-        obj[memberName] = to_json (member);
+        obj[memberName] = to_json<BaseToDerivedMapping> (member);
+      }
+    else if constexpr (is_unique_ptr<currentType>::value)
+      {
+        handleUniquePtr<BaseToDerivedMapping> (obj, member, memberName);
       }
     else
       {
