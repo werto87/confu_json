@@ -35,22 +35,19 @@ namespace confu_json
 {
 
 template <typename T, typename BaseToDerivedMapping = NotDefinedType> T to_object (boost::json::value const &_value);
-
 template <typename BaseToDerivedMapping = NotDefinedType, typename T, typename U> void handleOptional (T &t, U &_value, std::string const &name);
-
+template <typename BaseToDerivedMapping = NotDefinedType, typename T, typename U> void handleUniquePtr (T &t, U &_value, std::string const &name);
 template <typename BaseToDerivedMapping = NotDefinedType, typename T, typename U>
 void
 handleArray (T &t, U &_value)
 {
   using namespace boost::json;
   using someTypeOtherType = std::remove_reference_t<decltype (t.front ())>;
-
   if constexpr (is_std_or_boost_optional<someTypeOtherType> ())
     {
       using optionalType = std::remove_reference_t<decltype (t.front ().value ())>;
       if constexpr (boost::fusion::traits::is_sequence<optionalType>::value)
         {
-
           for (value const &element : _value.as_array ())
             {
               if (not element.is_null ())
@@ -112,6 +109,72 @@ handleArray (T &t, U &_value)
             }
         }
     }
+  else if constexpr (is_unique_ptr<someTypeOtherType> ())
+    {
+      using uniquePtrType = std::remove_reference_t<decltype (*t.front ().get ())>;
+      if constexpr (boost::fusion::traits::is_sequence<uniquePtrType>::value)
+        {
+          for (value const &element : _value.as_array ())
+            {
+              if (not element.is_null ())
+                {
+                  auto temp = someTypeOtherType{};
+                  handleUniquePtr<BaseToDerivedMapping> (temp, element, std::string{ type_name<someTypeOtherType> () });
+                  t.push_back (std::move (temp));
+                }
+              else
+                {
+                  t.push_back (nullptr);
+                }
+            }
+        }
+      else
+        {
+          for (value const &element : _value.as_array ())
+            {
+              if (not element.is_null ())
+                {
+                  if constexpr (std::is_same<bool, uniquePtrType>::value)
+                    {
+                      t.push_back (element.as_bool ());
+                    }
+                  else if constexpr (std::is_signed<uniquePtrType>::value)
+                    {
+                      t.push_back (boost::numeric_cast<uniquePtrType> (element.as_int64 ()));
+                    }
+                  else if constexpr (std::is_unsigned<uniquePtrType>::value)
+                    {
+                      t.push_back (element.as_uint64 ());
+                    }
+                  else if constexpr (is_std_string<uniquePtrType>::value)
+                    {
+                      if (element.kind () == kind::string) t.push_back (std::string{ element.as_string ().c_str () });
+                      else
+                        {
+                          t.push_back (std::string{});
+                        }
+                    }
+                  else if constexpr (std::is_enum_v<uniquePtrType>)
+                    {
+                      auto result = std::string{ type_name<uniquePtrType> () };
+                      auto enumOptional = magic_enum::enum_cast<uniquePtrType> (element.as_object ().at (result).as_string ().c_str ());
+                      if (enumOptional)
+                        {
+                          t.push_back (enumOptional.value ());
+                        }
+                      else
+                        {
+                          std::cout << type_name<uniquePtrType> () << ": not supported enum value: " << _value.as_string ().c_str () << std::endl;
+                        }
+                    }
+                }
+              else
+                {
+                  t.push_back (someTypeOtherType{});
+                }
+            }
+        }
+    }
   else if constexpr (is_std_pair<someTypeOtherType>::value)
     {
       for (auto &element : _value.as_array ())
@@ -158,7 +221,6 @@ handleArray (T &t, U &_value)
                   result.first = to_object<firstType, BaseToDerivedMapping> (element.at (0).at (type_name<firstType> ()));
                 }
             }
-
           if constexpr (is_std_or_boost_optional<secondType> ())
             {
               if (not element.at (1).is_null ())
@@ -301,7 +363,7 @@ handleOptional (T &t, U &_value, std::string const &name)
     }
 }
 
-template <typename BaseToDerivedMapping = NotDefinedType, typename T, typename U>
+template <typename BaseToDerivedMapping, typename T, typename U>
 void
 handleUniquePtr (T &t, U &_value, std::string const &name)
 {

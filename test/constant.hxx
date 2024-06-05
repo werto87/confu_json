@@ -80,6 +80,12 @@ struct UniquePtrOptional
 };
 BOOST_FUSION_ADAPT_STRUCT (UniquePtrOptional, uniquePtrOptional)
 
+struct VectorUniquePtr
+{
+  std::vector<std::unique_ptr<user_matchmaking_game::GameOptionBase>> vectorUniquePtr{};
+};
+BOOST_FUSION_ADAPT_STRUCT (VectorUniquePtr, vectorUniquePtr)
+
 namespace shared_class
 {
 struct WithEnumPairOptionalVector

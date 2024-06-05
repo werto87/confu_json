@@ -426,3 +426,17 @@ TEST_CASE ("unique ptr optional optional has no value", "[combine]")
   REQUIRE_FALSE (original.uniquePtrOptional.get ()->has_value ());
   REQUIRE_FALSE (test.uniquePtrOptional.get ()->has_value ());
 }
+
+TEST_CASE ("unique ptr  vector<unique_ptr<Base>>", "[combine]")
+{
+  auto original = VectorUniquePtr{};
+  original.vectorUniquePtr.push_back (std::make_unique<GameOption> ());
+  dynamic_cast<GameOption *> (original.vectorUniquePtr.at (0).get ())->i = 42;
+  original.vectorUniquePtr.push_back (std::make_unique<GameOption> ());
+  dynamic_cast<GameOption *> (original.vectorUniquePtr.at (1).get ())->i = 1337;
+  original.vectorUniquePtr.push_back (nullptr);
+  auto test = to_object<VectorUniquePtr, m> (to_json<m> (original));
+  REQUIRE (dynamic_cast<GameOption *> (original.vectorUniquePtr.at (0).get ())->i == dynamic_cast<GameOption *> (test.vectorUniquePtr.at (0).get ())->i);
+  REQUIRE (dynamic_cast<GameOption *> (original.vectorUniquePtr.at (1).get ())->i == dynamic_cast<GameOption *> (test.vectorUniquePtr.at (1).get ())->i);
+  REQUIRE (original.vectorUniquePtr.at (2).get () == test.vectorUniquePtr.at (2).get ());
+}
