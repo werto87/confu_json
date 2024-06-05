@@ -301,6 +301,33 @@ handlePair (boost::json::object &result, T const &member, std::string const &mem
             }
         }
     }
+  else if constexpr (is_unique_ptr<pairTypeFirst> ())
+    {
+      if constexpr (boost::fusion::traits::is_sequence<pairTypeFirst>::value) // looks fishy how can the type be optional and fusion sequence
+        {
+          object wrapper;
+          if (handleUniquePtr<BaseToDerivedMapping> (wrapper, member.first, std::string{ type_name<pairTypeFirst> () }))
+            {
+              pairArray.emplace_back (wrapper);
+            }
+          else
+            {
+              pairArray.emplace_back (nullptr);
+            }
+        }
+      else
+        {
+          object wrapper;
+          if (handleUniquePtr<BaseToDerivedMapping> (wrapper, member.first, std::string{ type_name<pairTypeFirst> () }))
+            {
+              pairArray.emplace_back (wrapper);
+            }
+          else
+            {
+              pairArray.emplace_back (nullptr);
+            }
+        }
+    }
   else
     {
       if constexpr (boost::fusion::traits::is_sequence<pairTypeFirst>::value)
@@ -341,6 +368,33 @@ handlePair (boost::json::object &result, T const &member, std::string const &mem
         {
           object wrapper;
           if (handleOptional<BaseToDerivedMapping> (wrapper, member.second, std::string{ type_name<pairTypeSecond> () }))
+            {
+              pairArray.emplace_back (wrapper);
+            }
+          else
+            {
+              pairArray.emplace_back (nullptr);
+            }
+        }
+    }
+  else if constexpr (is_unique_ptr<pairTypeSecond> ())
+    {
+      if constexpr (boost::fusion::traits::is_sequence<pairTypeSecond>::value) // looks fishy how can the type be optional and fusion sequence
+        {
+          object wrapper;
+          if (handleUniquePtr<BaseToDerivedMapping> (wrapper, member.second, std::string{ type_name<pairTypeSecond> () }))
+            {
+              pairArray.emplace_back (wrapper);
+            }
+          else
+            {
+              pairArray.emplace_back (nullptr);
+            }
+        }
+      else
+        {
+          object wrapper;
+          if (handleUniquePtr<BaseToDerivedMapping> (wrapper, member.second, std::string{ type_name<pairTypeSecond> () }))
             {
               pairArray.emplace_back (wrapper);
             }

@@ -479,6 +479,10 @@ to_object (boost::json::value const &_value)
       {
         member = jsonDataForMember.template to_number<currentType> ();
       }
+    else if constexpr (is_std_string<currentType>::value)
+      {
+        if (jsonDataForMember.kind () == kind::string) member = jsonDataForMember.as_string ().c_str ();
+      }
     else if constexpr (is_std_or_boost_optional<currentType> ())
       {
         if (not jsonDataForMember.is_null ())
@@ -493,10 +497,6 @@ to_object (boost::json::value const &_value)
             handleUniquePtr<BaseToDerivedMapping> (member, _value, memberName);
           }
       }
-    else if constexpr (is_std_string<currentType>::value)
-      {
-        if (jsonDataForMember.kind () == kind::string) member = jsonDataForMember.as_string ().c_str ();
-      }
     else
       {
         if constexpr (is_std_vector<currentType>::value)
@@ -507,12 +507,18 @@ to_object (boost::json::value const &_value)
           {
             using firstType = std::remove_reference_t<decltype (member.first)>;
             using secondType = std::remove_reference_t<decltype (member.second)>;
-
             if constexpr (is_std_or_boost_optional<firstType> ())
               {
                 if (not jsonDataForMember.at (0).is_null ())
                   {
                     handleOptional<BaseToDerivedMapping> (member.first, jsonDataForMember.at (0), std::string{ type_name<firstType> () });
+                  }
+              }
+            else if constexpr (is_unique_ptr<firstType> ())
+              {
+                if (not jsonDataForMember.at (0).is_null ())
+                  {
+                    handleUniquePtr<BaseToDerivedMapping> (member.first, jsonDataForMember.at (0), std::string{ type_name<firstType> () });
                   }
               }
             else if constexpr (std::is_enum_v<firstType>)
@@ -528,6 +534,18 @@ to_object (boost::json::value const &_value)
                     std::cout << type_name<firstType> () << ": not supported enum value: " << jsonDataForMember.as_string ().c_str () << std::endl;
                   }
               }
+            else if constexpr (std::is_same<bool, firstType>::value)
+              {
+                member.first = jsonDataForMember.at (0).as_bool ();
+              }
+            else if constexpr (std::is_signed<firstType>::value || std::is_unsigned<firstType>::value)
+              {
+                member.first = jsonDataForMember.at (0).template to_number<firstType> ();
+              }
+            else if constexpr (is_std_string<firstType>::value)
+              {
+                if (jsonDataForMember.at (0).kind () == kind::string) member.first = jsonDataForMember.at (0).as_string ().c_str ();
+              }
             else
               {
                 member.first = to_object<firstType, BaseToDerivedMapping> (jsonDataForMember.at (0).at (type_name<firstType> ()));
@@ -537,6 +555,13 @@ to_object (boost::json::value const &_value)
                 if (not jsonDataForMember.at (1).is_null ())
                   {
                     handleOptional<BaseToDerivedMapping> (member.second, jsonDataForMember.at (1), std::string{ type_name<secondType> () });
+                  }
+              }
+            else if constexpr (is_unique_ptr<secondType> ())
+              {
+                if (not jsonDataForMember.at (1).is_null ())
+                  {
+                    handleUniquePtr<BaseToDerivedMapping> (member.second, jsonDataForMember.at (1), std::string{ type_name<secondType> () });
                   }
               }
             else if constexpr (std::is_enum_v<secondType>)
@@ -551,6 +576,18 @@ to_object (boost::json::value const &_value)
                   {
                     std::cout << type_name<secondType> () << ": not supported enum value: " << jsonDataForMember.as_string ().c_str () << std::endl;
                   }
+              }
+            else if constexpr (std::is_same<bool, secondType>::value)
+              {
+                member.second = jsonDataForMember.at (1).as_bool ();
+              }
+            else if constexpr (std::is_signed<secondType>::value || std::is_unsigned<secondType>::value)
+              {
+                member.second = jsonDataForMember.at (1).template to_number<secondType> ();
+              }
+            else if constexpr (is_std_string<secondType>::value)
+              {
+                if (jsonDataForMember.at (1).kind () == kind::string) member.second = jsonDataForMember.at (1).as_string ().c_str ();
               }
             else
               {
@@ -570,7 +607,6 @@ to_object (boost::json::value const &_value)
                 std::cout << type_name<currentType> () << ": not supported enum value: " << jsonDataForMember.as_string ().c_str () << std::endl;
               }
           }
-
         else
           {
             member = to_object<currentType, BaseToDerivedMapping> (jsonDataForMember.as_object ());

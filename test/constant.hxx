@@ -86,6 +86,24 @@ struct VectorUniquePtr
 };
 BOOST_FUSION_ADAPT_STRUCT (VectorUniquePtr, vectorUniquePtr)
 
+struct PairUniquePtr
+{
+  std::pair<std::unique_ptr<user_matchmaking_game::GameOptionBase>, std::unique_ptr<user_matchmaking_game::GameOptionBase>> pairUniquePtr{};
+};
+BOOST_FUSION_ADAPT_STRUCT (PairUniquePtr, pairUniquePtr)
+
+struct PairUniquePtrAndInt
+{
+  std::pair<std::unique_ptr<user_matchmaking_game::GameOptionBase>, int> pairUniquePtrAndInt{};
+};
+BOOST_FUSION_ADAPT_STRUCT (PairUniquePtrAndInt, pairUniquePtrAndInt)
+
+struct PairInt
+{
+  std::pair<int, int> pairInt{};
+};
+BOOST_FUSION_ADAPT_STRUCT (PairInt, pairInt)
+
 namespace shared_class
 {
 struct WithEnumPairOptionalVector

@@ -440,3 +440,37 @@ TEST_CASE ("unique ptr  vector<unique_ptr<Base>>", "[combine]")
   REQUIRE (dynamic_cast<GameOption *> (original.vectorUniquePtr.at (1).get ())->i == dynamic_cast<GameOption *> (test.vectorUniquePtr.at (1).get ())->i);
   REQUIRE (original.vectorUniquePtr.at (2).get () == test.vectorUniquePtr.at (2).get ());
 }
+
+TEST_CASE ("unique ptr  pair<unique_ptr<Base>,unique_ptr<Base>>", "[combine]")
+{
+  auto original = PairUniquePtr{};
+  original.pairUniquePtr.first = std::make_unique<GameOption> ();
+  dynamic_cast<GameOption *> (original.pairUniquePtr.first.get ())->i = 42;
+  original.pairUniquePtr.second = std::make_unique<GameOption> ();
+  dynamic_cast<GameOption *> (original.pairUniquePtr.second.get ())->i = 1337;
+  auto test = to_object<PairUniquePtr, m> (to_json<m> (original));
+  REQUIRE (dynamic_cast<GameOption *> (original.pairUniquePtr.first.get ())->i == dynamic_cast<GameOption *> (test.pairUniquePtr.first.get ())->i);
+  REQUIRE (dynamic_cast<GameOption *> (original.pairUniquePtr.second.get ())->i == dynamic_cast<GameOption *> (test.pairUniquePtr.second.get ())->i);
+}
+
+TEST_CASE ("unique ptr  pair<unique_ptr<Base>,int>", "[combine]")
+{
+  auto original = PairUniquePtrAndInt{};
+  original.pairUniquePtrAndInt.first = std::make_unique<GameOption> ();
+  dynamic_cast<GameOption *> (original.pairUniquePtrAndInt.first.get ())->i = 42;
+  original.pairUniquePtrAndInt.second = 1337;
+  auto test = to_object<PairUniquePtrAndInt, m> (to_json<m> (original));
+  REQUIRE (dynamic_cast<GameOption *> (test.pairUniquePtrAndInt.first.get ())->i == 42);
+  REQUIRE (test.pairUniquePtrAndInt.second == 1337);
+}
+
+TEST_CASE ("unique ptr  pair<int,int>", "[combine]")
+{
+  auto original = PairInt{};
+  original.pairInt.first = 42;
+  original.pairInt.second = 1337;
+  std::cout << to_json<m> (original) << std::endl;
+  auto test = to_object<PairInt, m> (to_json<m> (original));
+  REQUIRE (original.pairInt.first == test.pairInt.first);
+  REQUIRE (original.pairInt.second == test.pairInt.second);
+}
