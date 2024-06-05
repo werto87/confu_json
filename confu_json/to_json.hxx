@@ -98,7 +98,6 @@ handleArray (boost::json::array &result, T const &t)
                   if constexpr (std::is_enum_v<uniquePtrType>)
                     {
                       tmp[std::string{ type_name<uniquePtrType> () }] = std::string{ magic_enum::enum_name (element.value ()) };
-                      std::cout << tmp << std::endl;
                       result.emplace_back (tmp);
                     }
                   else
