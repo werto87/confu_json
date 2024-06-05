@@ -19,11 +19,18 @@
 #include <boost/fusion/include/for_each.hpp>
 #include <boost/fusion/include/mpl.hpp>
 #include <boost/fusion/include/vector.hpp>
+#include <boost/mpl/assert.hpp>
 #include <boost/mpl/has_key_fwd.hpp>
+#include <boost/mpl/map.hpp>
 #include <boost/mpl/range_c.hpp>
 #include <boost/mpl/size.hpp>
 #include <boost/numeric/conversion/cast.hpp>
 #include <magic_enum/magic_enum.hpp>
+#include <memory>
+#include <optional>
+#include <stdexcept>
+#include <type_traits>
+#include <vector>
 namespace confu_json
 {
 
@@ -241,7 +248,6 @@ handleOptional (T &t, U &_value, std::string const &name)
 {
   using namespace boost::json;
   auto &jsonDataForMember = _value.as_object ().at (name);
-
   using optionalType = typename std::decay<decltype (t.value ())>::type;
   if constexpr (std::is_same<bool, optionalType>::value)
     {
@@ -249,6 +255,7 @@ handleOptional (T &t, U &_value, std::string const &name)
     }
   else if constexpr (std::is_signed<optionalType>::value)
     {
+
       t = jsonDataForMember.as_int64 ();
     }
   else if constexpr (std::is_unsigned<optionalType>::value)
@@ -284,7 +291,6 @@ handleOptional (T &t, U &_value, std::string const &name)
     }
   else if constexpr (boost::fusion::traits::is_sequence<optionalType>::value)
     {
-      // TODO make use of dependency injection
       t = to_object<optionalType, BaseToDerivedMapping> (jsonDataForMember.as_object ());
     }
   else if constexpr (is_std_vector<optionalType>::value)
@@ -318,7 +324,16 @@ handleUniquePtr (T &t, U &_value, std::string const &name)
     {
       if (not jsonDataForMember.is_null ())
         {
-          handleOptional<BaseToDerivedMapping> (t, jsonDataForMember, name);
+          if (not jsonDataForMember.as_object ().at ("optional").is_null ())
+            {
+              auto optionalTmp = uniquePtrType{};
+              handleOptional<BaseToDerivedMapping> (optionalTmp, jsonDataForMember, "optional");
+              t = std::make_unique<uniquePtrType> (optionalTmp);
+            }
+          else
+            {
+              t = std::make_unique<uniquePtrType> (std::nullopt);
+            }
         }
     }
   else if constexpr (is_unique_ptr<uniquePtrType> ())
@@ -340,7 +355,7 @@ handleUniquePtr (T &t, U &_value, std::string const &name)
           auto enumOptional = magic_enum::enum_cast<uniquePtrType> (result);
           if (enumOptional)
             {
-              t = enumOptional.value ();
+              t = std::make_unique<uniquePtrType> (enumOptional.value ());
             }
           else
             {
@@ -371,7 +386,7 @@ handleUniquePtr (T &t, U &_value, std::string const &name)
     {
       auto tmp = uniquePtrType{};
       handleArray<BaseToDerivedMapping> (tmp, jsonDataForMember);
-      t = tmp;
+      t = std::make_unique<uniquePtrType> (tmp);
     }
 }
 

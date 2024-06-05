@@ -1,8 +1,13 @@
 #ifndef FE334B5B_FA67_454D_A6F5_A1CBF7D02BB7
 #define FE334B5B_FA67_454D_A6F5_A1CBF7D02BB7
 #include <boost/fusion/adapted/struct/adapt_struct.hpp>
+#include <boost/fusion/adapted/struct/detail/adapt_auto.hpp>
+#include <boost/mpl/assert.hpp>
+#include <boost/mpl/map.hpp>
 #include <boost/optional/optional_io.hpp>
-
+#include <login_matchmaking_game_shared/gameOptionBase.hxx>
+#include <login_matchmaking_game_shared/matchmakingGameSerialization.hxx>
+#include <utility>
 namespace shared_class
 {
 
@@ -56,6 +61,24 @@ struct UniquePtrWithVector
   std::unique_ptr<std::vector<int>> uniquePtrVectorInt{};
 };
 BOOST_FUSION_ADAPT_STRUCT (UniquePtrWithVector, uniquePtrVectorInt)
+
+struct UniquePtrEnum
+{
+  std::unique_ptr<shared_class::PlayerRole> uniquePtrEnum{};
+};
+BOOST_FUSION_ADAPT_STRUCT (UniquePtrEnum, uniquePtrEnum)
+
+struct UniquePtrPair
+{
+  std::unique_ptr<std::pair<int, shared_class::PlayerRole>> uniquePtrPair{};
+};
+BOOST_FUSION_ADAPT_STRUCT (UniquePtrPair, uniquePtrPair)
+
+struct UniquePtrOptional
+{
+  std::unique_ptr<std::optional<int>> uniquePtrOptional{};
+};
+BOOST_FUSION_ADAPT_STRUCT (UniquePtrOptional, uniquePtrOptional)
 
 namespace shared_class
 {
@@ -155,4 +178,11 @@ BOOST_FUSION_ADAPT_STRUCT (shared_class::OptionalVector, optionalVectorString, o
 BOOST_FUSION_DEFINE_STRUCT ((shared_class), VectorOfVector, (std::vector<std::vector<int>>, vectorOfVector))
 // cppcheck-suppress unknownMacro
 BOOST_FUSION_DEFINE_STRUCT ((shared_class), OptionalVectorOfVector, (boost::optional<std::vector<std::vector<int>>>, optionalVectorOfVector))
+struct GameOption : public user_matchmaking_game::GameOptionBase
+{
+  int i{};
+};
+BOOST_FUSION_ADAPT_STRUCT (GameOption, i)
+typedef boost::mpl::map<boost::mpl::pair<user_matchmaking_game::GameOptionBase, GameOption>> m;
+
 #endif /* FE334B5B_FA67_454D_A6F5_A1CBF7D02BB7 */

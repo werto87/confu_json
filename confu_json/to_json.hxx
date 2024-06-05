@@ -20,6 +20,9 @@
 #include <boost/fusion/include/mpl.hpp>
 #include <boost/fusion/include/std_pair.hpp>
 #include <boost/fusion/include/vector.hpp>
+#include <boost/json/object.hpp>
+#include <boost/mpl/assert.hpp>
+#include <boost/mpl/map.hpp>
 #include <boost/mpl/range_c.hpp>
 #include <boost/mpl/size.hpp>
 #include <magic_enum/magic_enum.hpp>
@@ -61,7 +64,6 @@ handleArray (boost::json::array &result, T const &t)
                   if constexpr (std::is_enum_v<optionalType>)
                     {
                       tmp[std::string{ type_name<optionalType> () }] = std::string{ magic_enum::enum_name (element.value ()) };
-                      std::cout << tmp << std::endl;
                       result.emplace_back (tmp);
                     }
                   else
@@ -234,22 +236,25 @@ handleUniquePtr (boost::json::object &result, T const &t, std::string const &mem
         {
           if constexpr (std::is_enum_v<uniquePtrType>)
             {
-              result[memberName] = std::string{ magic_enum::enum_name (t.value ()) };
+              result[memberName] = std::string{ magic_enum::enum_name (*t.get ()) };
+            }
+          else if constexpr (is_std_or_boost_optional<uniquePtrType> ())
+            {
+              auto obj = boost::json::object{};
+              handleOptional<BaseToDerivedMapping> (obj, *t.get (), "optional");
+              result[memberName] = obj;
+            }
+          else if constexpr (is_std_vector<uniquePtrType>::value)
+            {
+              // handle uniquePtr  when vector is in a uniquePtr
+              using namespace boost::json;
+              array tmp;
+              handleArray<BaseToDerivedMapping> (tmp, *t.get ());
+              result[memberName] = tmp;
             }
           else
             {
-              if constexpr (is_std_vector<uniquePtrType>::value)
-                {
-                  // handle uniquePtr  when vector is in a uniquePtr
-                  using namespace boost::json;
-                  array tmp;
-                  handleArray<BaseToDerivedMapping> (tmp, t.value ());
-                  result[memberName] = tmp;
-                }
-              else
-                {
-                  result[memberName] = t.value ();
-                }
+              result[memberName] = t.value ();
             }
           return true;
         }
