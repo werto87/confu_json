@@ -14,7 +14,7 @@
   #include "confu_json/to_json.hxx"
   #include "confu_json/to_object.hxx"
   #include <boost/fusion/adapted/struct/adapt_struct.hpp>
-  #include <boost/json/src.hpp>  // if you use boost json head only this file should be included only in one translation unit
+  #include <boost/json/src.hpp>  // if you use boost json header only this file should be included only in one translation unit
 
   BOOST_FUSION_DEFINE_STRUCT((shared_class), Nested, (long, answer)) // used to define a struct
 
