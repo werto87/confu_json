@@ -3,8 +3,6 @@ add_executable(_test
         main.cxx
         playground.cxx)
 find_package(Catch2)
-find_package(login_matchmaking_game_shared)
-find_package(modern_durak_game_shared)
 find_package(durak)
 
 target_link_libraries(_test
