@@ -5,9 +5,37 @@
 #include <boost/mpl/assert.hpp>
 #include <boost/mpl/map.hpp>
 #include <boost/optional/optional_io.hpp>
-#include <login_matchmaking_game_shared/gameOptionBase.hxx>
-#include <login_matchmaking_game_shared/matchmakingGameSerialization.hxx>
 #include <utility>
+
+namespace user_matchmaking_game
+{
+class GameOptionBase
+{
+public:
+  virtual ~GameOptionBase () noexcept = default;
+};
+
+struct GameOptionWrapper
+{
+  std::unique_ptr<user_matchmaking_game::GameOptionBase> gameOption{};
+};
+}
+
+BOOST_FUSION_ADAPT_STRUCT (user_matchmaking_game::GameOptionBase, )
+BOOST_FUSION_ADAPT_STRUCT (user_matchmaking_game::GameOptionWrapper, gameOption)
+
+namespace matchmaking_game
+{
+struct StartGame
+{
+  std::vector<std::string> players{};
+  std::unique_ptr<user_matchmaking_game::GameOptionBase> gameOption{};
+  bool ratedGame{};
+};
+
+}
+BOOST_FUSION_ADAPT_STRUCT (matchmaking_game::StartGame, players, gameOption, ratedGame)
+
 namespace shared_class
 {
 

@@ -20,8 +20,5 @@ class Project(ConanFile):
         self.requires("magic_enum/[>=0.9.5 <10]")
         self.requires("boost/1.85.0")
         self.requires("di/1.3.0")
-###   for testing types do not put this in the conan recip ####
-        self.requires("login_matchmaking_game_shared/latest")
-        self.requires("modern_durak_game_shared/latest")
-###############################################################
+
 

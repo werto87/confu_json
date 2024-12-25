@@ -12,8 +12,6 @@ target_link_libraries(_test
         myproject_warnings
         confu_json
         Catch2::Catch2WithMain
-        login_matchmaking_game_shared::login_matchmaking_game_shared
-        modern_durak_game_shared::modern_durak_game_shared
         durak::durak
         )
 target_include_directories(_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_SOURCE_DIR})
