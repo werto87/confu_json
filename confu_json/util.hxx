@@ -21,30 +21,31 @@ template <typename T>
 std::string
 type_name ()
 {
-#ifdef _MSC_VER
-  std::string_view name = __FUNCSIG__;
-  auto fullName = std::vector<std::string>{};
-  boost::algorithm::split (fullName, name, boost::is_any_of ("::"));
-  boost::erase_all (fullName.back (), ">(void)");
-  boost::erase_all (fullName.back (), ">");
-#else
-  std::string_view name = __PRETTY_FUNCTION__;
-  auto fullName = std::vector<std::string>{};
-#ifndef CLANG_TIDY
-  // clang-tidy false positive https://bugs.llvm.org/show_bug.cgi?id=41141
-  boost::algorithm::split (fullName, name, boost::is_any_of ("::"));
-#endif
-  boost::erase_all (fullName.back (), "]");
-  boost::erase_all (fullName.back (), ">");
-#endif
-  if (fullName.empty ())
-    {
-      return "";
-    }
-  else
-    {
-      return fullName.back ();
-    }
+  return "";
+// #ifdef _MSC_VER
+//   std::string_view name = __FUNCSIG__;
+//   auto fullName = std::vector<std::string>{};
+//   boost::algorithm::split (fullName, name, boost::is_any_of ("::"));
+//   boost::erase_all (fullName.back (), ">(void)");
+//   boost::erase_all (fullName.back (), ">");
+// #else
+//   std::string_view name = __PRETTY_FUNCTION__;
+//   auto fullName = std::vector<std::string>{};
+// #ifndef CLANG_TIDY
+//   // clang-tidy false positive https://bugs.llvm.org/show_bug.cgi?id=41141
+//   boost::algorithm::split (fullName, name, boost::is_any_of ("::"));
+// #endif
+//   boost::erase_all (fullName.back (), "]");
+//   boost::erase_all (fullName.back (), ">");
+// #endif
+//   if (fullName.empty ())
+//     {
+//       return "";
+//     }
+//   else
+//     {
+//       return fullName.back ();
+//     }
 }
 
 inline boost::json::value
