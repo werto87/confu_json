@@ -317,8 +317,14 @@ handleOptional (T &t, U &_value, std::string const &name)
     }
   else if constexpr (std::is_signed<optionalType>::value)
     {
-
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable : 4244)
+#endif
       t = jsonDataForMember.as_int64 ();
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
     }
   else if constexpr (std::is_unsigned<optionalType>::value)
     {

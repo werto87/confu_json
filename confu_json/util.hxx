@@ -37,8 +37,14 @@ type_name ()
   boost::erase_all (fullName.back (), "]");
   boost::erase_all (fullName.back (), ">");
 #endif
-
-  return fullName.back ();
+  if (fullName.empty ())
+    {
+      throw std::out_of_range{};
+    }
+  else
+    {
+      return fullName.back ();
+    }
 }
 
 inline boost::json::value
