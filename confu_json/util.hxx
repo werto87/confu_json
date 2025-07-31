@@ -18,7 +18,7 @@ namespace confu_json
 {
 
 template <typename T>
-auto
+std::string
 type_name ()
 {
 #ifdef _MSC_VER

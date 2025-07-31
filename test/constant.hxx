@@ -20,9 +20,16 @@ struct GameOptionWrapper
   std::unique_ptr<user_matchmaking_game::GameOptionBase> gameOption{};
 };
 }
-
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable : 4003)
+#endif
 BOOST_FUSION_ADAPT_STRUCT (user_matchmaking_game::GameOptionBase, )
 BOOST_FUSION_ADAPT_STRUCT (user_matchmaking_game::GameOptionWrapper, gameOption)
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
+
 
 namespace matchmaking_game
 {

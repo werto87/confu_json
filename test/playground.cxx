@@ -5,7 +5,7 @@
 #include "confu_json/to_json.hxx"
 #include "confu_json/to_object.hxx"
 #include "test/constant.hxx"
-#include <catch2/catch.hpp>
+#include <catch2/catch_test_macros.hpp>
 #include <memory>
 #include <vector>
 using namespace confu_json;
