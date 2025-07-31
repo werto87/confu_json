@@ -39,7 +39,7 @@ type_name ()
 #endif
   if (fullName.empty ())
     {
-      throw std::out_of_range{};
+      return "";
     }
   else
     {
