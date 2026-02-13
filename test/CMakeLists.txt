@@ -2,7 +2,6 @@ add_executable(_test
         combineToJsonAndToObject.cxx
         main.cxx
         playground.cxx
-        toJsonHelper.cxx
         )
 find_package(Catch2)
 find_package(durak)

@@ -474,3 +474,5 @@ TEST_CASE ("unique ptr  pair<int,int>", "[combine]")
   REQUIRE (original.pairInt.first == test.pairInt.first);
   REQUIRE (original.pairInt.second == test.pairInt.second);
 }
+
+TEST_CASE ("json_array_to_std_vector", "[helper]") { REQUIRE (json_array_to_std_vector<matchmaking_game::StartGame> (to_json_array (std::vector<matchmaking_game::StartGame> (5))).size () == 5); }

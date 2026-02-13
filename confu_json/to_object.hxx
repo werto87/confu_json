@@ -40,7 +40,7 @@ template <typename BaseToDerivedMapping = NotDefinedType, typename T, typename U
 
 template <typename BaseToDerivedMapping = NotDefinedType, typename T, typename U>
 void
-handleArray (T &t, U &_value)
+handleArray (T &t, U const &_value)
 {
   using namespace boost::json;
   using someTypeOtherType = std::remove_reference_t<decltype (t.front ())>;
@@ -303,6 +303,15 @@ handleArray (T &t, U &_value)
           t = value_to<T> (_value);
         }
     }
+}
+
+template <typename T, typename BaseToDerivedMapping = NotDefinedType>
+std::vector<T>
+json_array_to_std_vector (boost::json::array const &jsonArray)
+{
+  auto result = std::vector<T>{};
+  handleArray<BaseToDerivedMapping> (result, boost::json::value{ jsonArray });
+  return result;
 }
 
 template <typename BaseToDerivedMapping, typename T, typename U>
