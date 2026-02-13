@@ -37,6 +37,7 @@ namespace confu_json
 template <typename T, typename BaseToDerivedMapping = NotDefinedType> T to_object (boost::json::value const &_value);
 template <typename BaseToDerivedMapping = NotDefinedType, typename T, typename U> void handleOptional (T &t, U &_value, std::string const &name);
 template <typename BaseToDerivedMapping = NotDefinedType, typename T, typename U> void handleUniquePtr (T &t, U &_value, std::string const &name);
+
 template <typename BaseToDerivedMapping = NotDefinedType, typename T, typename U>
 void
 handleArray (T &t, U &_value)
