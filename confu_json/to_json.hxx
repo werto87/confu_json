@@ -148,7 +148,7 @@ boost::json::array
 to_json_array (T const &t)
 {
   auto result = boost::json::array{};
-  handleArray (result, t);
+  handleArray<BaseToDerivedMapping> (result, t);
   return result;
 }
 
