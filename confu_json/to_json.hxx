@@ -143,6 +143,15 @@ handleArray (boost::json::array &result, T const &t)
     }
 }
 
+template <typename BaseToDerivedMapping = NotDefinedType, class T>
+boost::json::array
+to_json_array (T const &t)
+{
+  auto result = boost::json::array{};
+  handleArray (result, t);
+  return result;
+}
+
 template <typename BaseToDerivedMapping, class T>
 bool
 handleOptional (boost::json::object &result, T const &t, std::string const &memberName)
