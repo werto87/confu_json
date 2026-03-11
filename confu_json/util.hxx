@@ -10,6 +10,7 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/fusion/adapted/struct/adapt_struct.hpp>
 #include <boost/json.hpp>
+#include <boost/type_index.hpp>
 #include <iostream>
 #include <sstream>
 #include <string_view>
@@ -28,7 +29,7 @@ type_name ()
   boost::erase_all (fullName.back (), ">(void)");
   boost::erase_all (fullName.back (), ">");
 #else
-  std::string_view name = __PRETTY_FUNCTION__;
+  auto name = boost::typeindex::type_id<T> ().pretty_name ();
   auto fullName = std::vector<std::string>{};
 #ifndef CLANG_TIDY
   // clang-tidy false positive https://bugs.llvm.org/show_bug.cgi?id=41141
