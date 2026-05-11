@@ -8,44 +8,32 @@
 #define EFBB6F2B_7B2E_4BD2_AF22_95E2E7BEDBD6
 
 #include <boost/algorithm/string.hpp>
+#include <boost/core/type_name.hpp>
 #include <boost/fusion/adapted/struct/adapt_struct.hpp>
 #include <boost/json.hpp>
 #include <boost/type_index.hpp>
 #include <iostream>
 #include <sstream>
 #include <string_view>
-
 namespace confu_json
 {
 
 template <typename T>
 std::string
+// use this for something where you want to know the user defined type
+// returns the typename with out namespace so my_typename::MyType becomes MyType
+// for std::string it returns string
+// for std::optional<my_typename::MyType> it returns MyType
+// do not use it for std::tuple and std::pair
 type_name ()
 {
-#ifdef _MSC_VER
-  std::string_view name = __FUNCSIG__;
-  auto fullName = std::vector<std::string>{};
-  boost::algorithm::split (fullName, name, boost::is_any_of ("::"));
-  boost::erase_all (fullName.back (), ">(void)");
-  boost::erase_all (fullName.back (), ">");
-#else
-  auto name = boost::typeindex::type_id<T> ().pretty_name ();
-  auto fullName = std::vector<std::string>{};
-#ifndef CLANG_TIDY
-  // clang-tidy false positive https://bugs.llvm.org/show_bug.cgi?id=41141
-  boost::algorithm::split (fullName, name, boost::is_any_of ("::"));
-#endif
-  boost::erase_all (fullName.back (), "]");
-  boost::erase_all (fullName.back (), ">");
-#endif
-  if (fullName.empty ())
-    {
-      return "";
-    }
-  else
-    {
-      return fullName.back ();
-    }
+  auto typeWithNamespace = boost::core::type_name<T> ();
+  auto splitNames = std::vector<std::string>{};
+  boost::algorithm::split (splitNames, typeWithNamespace, boost::is_any_of ("::"));
+  if (splitNames.empty ()) return "";
+  boost::erase_all (splitNames.back (), ">(void)");
+  boost::erase_all (splitNames.back (), ">");
+  return splitNames.back ();
 }
 
 inline boost::json::value
@@ -53,6 +41,5 @@ read_json (std::string const &jsonAsString, boost::system::error_code &ec)
 {
   return boost::json::parse (jsonAsString, ec);
 }
-
 }
 #endif /* EFBB6F2B_7B2E_4BD2_AF22_95E2E7BEDBD6 */

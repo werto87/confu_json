@@ -16,9 +16,9 @@ class Project(ConanFile):
 
     def requirements(self):
         self.requires("catch2/3.9.0")
-        self.requires("magic_enum/0.9.6")
+        self.requires("magic_enum/0.9.7")
         self.requires("boost/1.90.0")
 
         # only for tests
-        self.requires("durak/2.1.1")
+        self.requires("durak/2.1.1@modern-durak")
         ################
