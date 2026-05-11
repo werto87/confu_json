@@ -21,18 +21,15 @@ namespace confu_json
 template <typename T>
 std::string
 // use this for something where you want to know the user defined type
-// returns the typename with out namespace so my_typename::MyType becomes MyType
+// returns the typename without namespace so my_typename::MyType becomes MyType
 // for std::string it returns string
-// for std::optional<my_typename::MyType> it returns MyType
-// do not use it for std::tuple and std::pair
+// do not use it with std::optional<MyType> use it with 'type_name<typename std::optional<MyType>::value_type>()' this gives you MyType
 type_name ()
 {
   auto typeWithNamespace = boost::core::type_name<T> ();
   auto splitNames = std::vector<std::string>{};
   boost::algorithm::split (splitNames, typeWithNamespace, boost::is_any_of ("::"));
   if (splitNames.empty ()) return "";
-  boost::erase_all (splitNames.back (), ">(void)");
-  boost::erase_all (splitNames.back (), ">");
   return splitNames.back ();
 }
 

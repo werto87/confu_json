@@ -187,7 +187,7 @@ handleArray (T &t, U const &_value)
             {
               if (not element.at (0).is_null ())
                 {
-                  handleOptional<BaseToDerivedMapping> (result.first, element.at (0), std::string{ type_name<firstType> () });
+                  handleOptional<BaseToDerivedMapping> (result.first, element.at (0), std::string{ type_name<typename firstType::value_type> () });
                 }
             }
           else
@@ -226,7 +226,7 @@ handleArray (T &t, U const &_value)
             {
               if (not element.at (1).is_null ())
                 {
-                  handleOptional<BaseToDerivedMapping> (result.second, element.at (1), std::string{ type_name<secondType> () });
+                  handleOptional<BaseToDerivedMapping> (result.second, element.at (1), std::string{ type_name<typename secondType::value_type> () });
                 }
             }
           else
@@ -527,7 +527,7 @@ to_object (boost::json::value const &_value)
               {
                 if (not jsonDataForMember.at (0).is_null ())
                   {
-                    handleOptional<BaseToDerivedMapping> (member.first, jsonDataForMember.at (0), std::string{ type_name<firstType> () });
+                    handleOptional<BaseToDerivedMapping> (member.first, jsonDataForMember.at (0), std::string{ type_name<typename firstType::value_type> () });
                   }
               }
             else if constexpr (is_unique_ptr<firstType> ())
@@ -570,7 +570,7 @@ to_object (boost::json::value const &_value)
               {
                 if (not jsonDataForMember.at (1).is_null ())
                   {
-                    handleOptional<BaseToDerivedMapping> (member.second, jsonDataForMember.at (1), std::string{ type_name<secondType> () });
+                    handleOptional<BaseToDerivedMapping> (member.second, jsonDataForMember.at (1), std::string{ type_name<typename secondType::value_type> () });
                   }
               }
             else if constexpr (is_unique_ptr<secondType> ())

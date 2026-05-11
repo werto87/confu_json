@@ -287,7 +287,7 @@ handlePair (boost::json::object &result, T const &member, std::string const &mem
       if constexpr (boost::fusion::traits::is_sequence<pairTypeFirst>::value) // looks fishy how can the type be optional and fusion sequence
         {
           object wrapper;
-          if (handleOptional<BaseToDerivedMapping> (wrapper, member.first, std::string{ type_name<pairTypeFirst> () }))
+          if (handleOptional<BaseToDerivedMapping> (wrapper, member.first, std::string{ type_name<typename pairTypeFirst::value_type> () }))
             {
               pairArray.emplace_back (wrapper);
             }
@@ -299,7 +299,7 @@ handlePair (boost::json::object &result, T const &member, std::string const &mem
       else
         {
           object wrapper;
-          if (handleOptional<BaseToDerivedMapping> (wrapper, member.first, std::string{ type_name<pairTypeFirst> () }))
+          if (handleOptional<BaseToDerivedMapping> (wrapper, member.first, std::string{ type_name<typename pairTypeFirst::value_type> () }))
             {
               pairArray.emplace_back (wrapper);
             }
@@ -349,7 +349,7 @@ handlePair (boost::json::object &result, T const &member, std::string const &mem
           if constexpr (std::is_enum_v<pairTypeFirst>)
             {
               object wrapper;
-              wrapper[std::string{ type_name<pairTypeSecond> () }] = std::string{ magic_enum::enum_name (member.first) };
+              wrapper[std::string{ type_name<pairTypeFirst> () }] = std::string{ magic_enum::enum_name (member.first) };
               pairArray.emplace_back (wrapper);
             }
           else
@@ -363,7 +363,7 @@ handlePair (boost::json::object &result, T const &member, std::string const &mem
       if constexpr (boost::fusion::traits::is_sequence<pairTypeSecond>::value) // looks fishy how can the type be optional and fusion sequence
         {
           object wrapper;
-          if (handleOptional<BaseToDerivedMapping> (wrapper, member.second, std::string{ type_name<pairTypeSecond> () }))
+          if (handleOptional<BaseToDerivedMapping> (wrapper, member.second, std::string{ type_name<typename pairTypeSecond::value_type> () }))
             {
               pairArray.emplace_back (wrapper);
             }
@@ -375,7 +375,7 @@ handlePair (boost::json::object &result, T const &member, std::string const &mem
       else
         {
           object wrapper;
-          if (handleOptional<BaseToDerivedMapping> (wrapper, member.second, std::string{ type_name<pairTypeSecond> () }))
+          if (handleOptional<BaseToDerivedMapping> (wrapper, member.second, std::string{ type_name<typename pairTypeSecond::value_type> () }))
             {
               pairArray.emplace_back (wrapper);
             }
@@ -443,41 +443,43 @@ to_json (T const &t)
 {
   using namespace boost::json;
   object obj{};
-  boost::fusion::for_each (boost::mpl::range_c<unsigned, 0, boost::fusion::result_of::size<T>::value> (), [&] (auto index) {
-    using currentType = typename std::decay<decltype (boost::fusion::at_c<index> (t))>::type;
-    auto &member = boost::fusion::at_c<index> (t);
-    auto memberName = boost::fusion::extension::struct_member_name<T, index>::call ();
-    if constexpr (is_std_or_boost_optional<currentType> ())
-      {
-        handleOptional<BaseToDerivedMapping> (obj, member, memberName);
-      }
-    else if constexpr (std::is_enum_v<currentType>)
-      {
-        obj[memberName] = std::string{ magic_enum::enum_name (member) };
-      }
-    else if constexpr (is_std_vector<currentType>::value)
-      {
-        array result;
-        handleArray<BaseToDerivedMapping> (result, member);
-        obj[memberName] = result;
-      }
-    else if constexpr (is_std_pair<currentType>::value)
-      {
-        handlePair<BaseToDerivedMapping> (obj, member, memberName);
-      }
-    else if constexpr (boost::fusion::traits::is_sequence<currentType>::value)
-      {
-        obj[memberName] = to_json<BaseToDerivedMapping> (member);
-      }
-    else if constexpr (is_unique_ptr<currentType>::value)
-      {
-        handleUniquePtr<BaseToDerivedMapping> (obj, member, memberName);
-      }
-    else
-      {
-        obj[memberName] = member;
-      }
-  });
+  boost::fusion::for_each (boost::mpl::range_c<unsigned, 0, boost::fusion::result_of::size<T>::value> (),
+                           [&] (auto index)
+                             {
+                               using currentType = typename std::decay<decltype (boost::fusion::at_c<index> (t))>::type;
+                               auto &member = boost::fusion::at_c<index> (t);
+                               auto memberName = boost::fusion::extension::struct_member_name<T, index>::call ();
+                               if constexpr (is_std_or_boost_optional<currentType> ())
+                                 {
+                                   handleOptional<BaseToDerivedMapping> (obj, member, memberName);
+                                 }
+                               else if constexpr (std::is_enum_v<currentType>)
+                                 {
+                                   obj[memberName] = std::string{ magic_enum::enum_name (member) };
+                                 }
+                               else if constexpr (is_std_vector<currentType>::value)
+                                 {
+                                   array result;
+                                   handleArray<BaseToDerivedMapping> (result, member);
+                                   obj[memberName] = result;
+                                 }
+                               else if constexpr (is_std_pair<currentType>::value)
+                                 {
+                                   handlePair<BaseToDerivedMapping> (obj, member, memberName);
+                                 }
+                               else if constexpr (boost::fusion::traits::is_sequence<currentType>::value)
+                                 {
+                                   obj[memberName] = to_json<BaseToDerivedMapping> (member);
+                                 }
+                               else if constexpr (is_unique_ptr<currentType>::value)
+                                 {
+                                   handleUniquePtr<BaseToDerivedMapping> (obj, member, memberName);
+                                 }
+                               else
+                                 {
+                                   obj[memberName] = member;
+                                 }
+                             });
   return obj;
 }
 }
