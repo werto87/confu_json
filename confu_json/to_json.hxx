@@ -82,7 +82,7 @@ handleArray (boost::json::array &result, T const &t)
           using uniquePtrType = std::decay_t<decltype (*element.get ())>;
           if constexpr (boost::fusion::traits::is_sequence<uniquePtrType>::value)
             {
-              if (handleUniquePtr<BaseToDerivedMapping> (tmp, element, std::string{ type_name<elementType> () }))
+              if (handleUniquePtr<BaseToDerivedMapping> (tmp, element, std::string{ type_name<typename elementType::element_type> () }))
                 {
                   result.push_back (tmp);
                 }
@@ -314,7 +314,7 @@ handlePair (boost::json::object &result, T const &member, std::string const &mem
       if constexpr (boost::fusion::traits::is_sequence<pairTypeFirst>::value) // looks fishy how can the type be optional and fusion sequence
         {
           object wrapper;
-          if (handleUniquePtr<BaseToDerivedMapping> (wrapper, member.first, std::string{ type_name<pairTypeFirst> () }))
+          if (handleUniquePtr<BaseToDerivedMapping> (wrapper, member.first, std::string{ type_name<typename pairTypeFirst::element_type> () }))
             {
               pairArray.emplace_back (wrapper);
             }
@@ -326,7 +326,7 @@ handlePair (boost::json::object &result, T const &member, std::string const &mem
       else
         {
           object wrapper;
-          if (handleUniquePtr<BaseToDerivedMapping> (wrapper, member.first, std::string{ type_name<pairTypeFirst> () }))
+          if (handleUniquePtr<BaseToDerivedMapping> (wrapper, member.first, std::string{ type_name<typename pairTypeFirst::element_type> () }))
             {
               pairArray.emplace_back (wrapper);
             }
@@ -390,7 +390,7 @@ handlePair (boost::json::object &result, T const &member, std::string const &mem
       if constexpr (boost::fusion::traits::is_sequence<pairTypeSecond>::value) // looks fishy how can the type be optional and fusion sequence
         {
           object wrapper;
-          if (handleUniquePtr<BaseToDerivedMapping> (wrapper, member.second, std::string{ type_name<pairTypeSecond> () }))
+          if (handleUniquePtr<BaseToDerivedMapping> (wrapper, member.second, std::string{ type_name<typename pairTypeSecond::element_type> () }))
             {
               pairArray.emplace_back (wrapper);
             }
@@ -402,7 +402,7 @@ handlePair (boost::json::object &result, T const &member, std::string const &mem
       else
         {
           object wrapper;
-          if (handleUniquePtr<BaseToDerivedMapping> (wrapper, member.second, std::string{ type_name<pairTypeSecond> () }))
+          if (handleUniquePtr<BaseToDerivedMapping> (wrapper, member.second, std::string{ type_name<typename pairTypeSecond::element_type> () }))
             {
               pairArray.emplace_back (wrapper);
             }

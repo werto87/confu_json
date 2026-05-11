@@ -120,7 +120,7 @@ handleArray (T &t, U const &_value)
               if (not element.is_null ())
                 {
                   auto temp = someTypeOtherType{};
-                  handleUniquePtr<BaseToDerivedMapping> (temp, element, std::string{ type_name<someTypeOtherType> () });
+                  handleUniquePtr<BaseToDerivedMapping> (temp, element, std::string{ type_name<typename someTypeOtherType::element_type> () });
                   t.push_back (std::move (temp));
                 }
               else
@@ -534,7 +534,7 @@ to_object (boost::json::value const &_value)
               {
                 if (not jsonDataForMember.at (0).is_null ())
                   {
-                    handleUniquePtr<BaseToDerivedMapping> (member.first, jsonDataForMember.at (0), std::string{ type_name<firstType> () });
+                    handleUniquePtr<BaseToDerivedMapping> (member.first, jsonDataForMember.at (0), std::string{ type_name<typename firstType::element_type> () });
                   }
               }
             else if constexpr (std::is_enum_v<firstType>)
@@ -577,7 +577,7 @@ to_object (boost::json::value const &_value)
               {
                 if (not jsonDataForMember.at (1).is_null ())
                   {
-                    handleUniquePtr<BaseToDerivedMapping> (member.second, jsonDataForMember.at (1), std::string{ type_name<secondType> () });
+                    handleUniquePtr<BaseToDerivedMapping> (member.second, jsonDataForMember.at (1), std::string{ type_name<typename secondType::element_type> () });
                   }
               }
             else if constexpr (std::is_enum_v<secondType>)
