@@ -2,6 +2,7 @@
 #include "confu_json/to_object.hxx"
 #include "test/constant.hxx"
 #include <catch2/catch_test_macros.hpp>
+#include <durak/gameData.hxx>
 #include <memory>
 #include <optional>
 #include <vector>
@@ -473,6 +474,13 @@ TEST_CASE ("unique ptr  pair<int,int>", "[combine]")
   auto test = to_object<PairInt, m> (to_json<m> (original));
   REQUIRE (original.pairInt.first == test.pairInt.first);
   REQUIRE (original.pairInt.second == test.pairInt.second);
+}
+TEST_CASE ("game data", "[combine]")
+{
+  auto jsonString = R"({"trump":"diamonds","table":[[{"Card":{"value":2,"type":"clubs"}},null]],"players":[{"PlayerData":{"name":"SomeName","cards":[{"Card":{"value":0,"type":"diamonds"}},{"Card":{"value":2,"type":"diamonds"}}],"playerRole":"attack"}},{"PlayerData":{"name":"c823f02d-83cc-4d98-859f-fd39c76c1d2f","cards":[{"Card":{"value":0,"type":"hearts"}},{"Card":{"value":1,"type":"diamonds"}},{"Card":{"value":3,"type":"hearts"}}],"playerRole":"defend"}}],"round":1,"lastCardInDeck":null,"cardsInDeck":0})";
+  auto gameDataValue = boost::json::parse (jsonString);
+  auto gameData = confu_json::to_object<durak::GameData> (gameDataValue);
+  REQUIRE (jsonString == boost::json::serialize (confu_json::to_json (gameData)));
 }
 
 TEST_CASE ("json_array_to_std_vector", "[helper]") { REQUIRE (json_array_to_std_vector<matchmaking_game::StartGame> (to_json_array (std::vector<matchmaking_game::StartGame> (5))).size () == 5); }

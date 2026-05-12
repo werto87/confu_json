@@ -48,7 +48,7 @@ handleArray (boost::json::array &result, T const &t)
           using optionalType = std::decay_t<decltype (element.value ())>;
           if constexpr (boost::fusion::traits::is_sequence<optionalType>::value)
             {
-              if (handleOptional<BaseToDerivedMapping> (tmp, element, std::string{ type_name<elementType> () }))
+              if (handleOptional<BaseToDerivedMapping> (tmp, element, std::string{ type_name<typename elementType::value_type > () }))
                 {
                   result.push_back (tmp);
                 }
